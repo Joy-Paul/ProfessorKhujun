@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Professorkhujun | প্রফেসরের খোঁজ এখন সহজ</title>
+</head>
+<body class="bg-slate-50">
+
+    <header class="bg-gradient-to-r from-blue-800 to-indigo-900 text-white py-16 px-6 text-center shadow-2xl">
+        <h1 class="text-5xl font-black mb-4 tracking-tight">Professorkhujun<span class="text-yellow-400">.com</span></h1>
+        <p class="text-lg text-blue-100 mb-8 max-w-xl mx-auto font-light">উচ্চশিক্ষার জন্য বিশ্বের সেরা প্রফেসরদের ডাটাবেস থেকে আপনার মেন্টর খুঁজে নিন।</p>
+        
+        <!-- <form method="GET" class="max-w-3xl mx-auto relative">
+            <input type="text" name="q" value="{{ query|default:'' }}" 
+                   placeholder="রিসার্চ ফিল্ড বা প্রফেসরের নাম লিখুন..." 
+                   class="w-full p-5 rounded-full text-gray-800 shadow-xl focus:ring-4 focus:ring-yellow-400 outline-none text-lg">
+            <button class="absolute right-2 top-2 bg-yellow-500 hover:bg-yellow-400 text-blue-900 font-bold py-3 px-8 rounded-full transition">
+                খুঁজুন
+            </button>
+        </form> -->
+        <form method="GET" class="flex flex-col md:flex-row gap-4 max-w-4xl mx-auto p-4 bg-white rounded-xl shadow-lg">
+            <input type="text" name="q" placeholder="রিসার্চ এরিয়া বা প্রফেসরের নাম..." class="flex-1 p-3 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            <select name="university" class="p-3 border rounded-lg outline-none bg-gray-50">
+                <option value="">সব ইউনিভার্সিটি</option>
+                {% for uni in universities %}
+                <option value="{{ uni.id }}">{{ uni.name }}</option>
+                {% endfor %}
+            </select>
+    
+            <button type="submit" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 transition">
+                Search Now
+            </button>
+        </form>
+        
+    </header>
+
+    <main class="container mx-auto py-12 px-4">
+        <h2 class="text-3xl font-bold text-gray-800 mb-8 border-l-8 border-yellow-500 pl-4">
+            {% if query %} "{{ query }}" এর ফলাফল {% else %} নির্বাচিত প্রফেসরবৃন্দ {% endif %}
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for prof in professors %}
+            <div class="bg-white rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-gray-100 overflow-hidden group">
+                <div class="p-6">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-2xl font-bold">
+                            {{ prof.name|slice:":1" }}
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900 group-hover:text-blue-700">{{ prof.name }}</h3>
+                            <p class="text-sm text-gray-500 font-medium">{{ prof.university.name }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <p class="text-sm text-gray-700"><span class="font-bold">ডিপার্টমেন্ট:</span> {{ prof.department }}</p>
+                        <p class="text-sm text-gray-600 italic">"{{ prof.research_areas|truncatechars:80 }}"</p>
+                    </div>
+
+                    <div class="mt-6 flex justify-between items-center">
+                        <a href="mailto:{{ prof.email }}" class="text-blue-600 hover:underline text-sm font-semibold">ইমেইল করুন</a>
+                        <a href="{{ prof.website }}" target="_blank" class="bg-slate-100 text-slate-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-600 hover:text-white transition">ওয়েবসাইট</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-20 bg-white rounded-xl shadow">
+                <p class="text-gray-400 text-xl italic">দুঃখিত, কোনো প্রফেসর খুঁজে পাওয়া যায়নি।</p>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 py-10 text-center">
+        <p class="text-gray-500">&copy; 2026 Professorkhujun.com - আপনার গবেষণার সঙ্গী।</p>
+    </footer>
+
+</body>
+</html>
