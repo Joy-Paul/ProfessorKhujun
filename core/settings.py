@@ -13,6 +13,11 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import dj_database_url
 import os
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+# .env ফাইলটি লোড করা হচ্ছে
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -139,16 +144,24 @@ if not DEBUG:
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# settings.py
-STRIPE_PUBLIC_KEY = 'your stripe public key here'  # আপনার Stripe পাবলিক কী
-STRIPE_SECRET_KEY = 'your stripe secret key here'  # আপনার Stripe সেক্রেট কী
+# # settings.py
+# STRIPE_PUBLIC_KEY = 'your stripe public key here'  # আপনার Stripe পাবলিক কী
+# STRIPE_SECRET_KEY = 'your stripe secret key here'  # আপনার Stripe সেক্রেট কী
 
-# settings.py
+# # settings.py
+
+# # Email Configuration
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'kaushikpauljoy@gmail.com' # আপনার জিমেইল অ্যাড্রেস
+# EMAIL_HOST_PASSWORD = 'your email host password' # স্পেস ছাড়া
+
 
 # Email Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'kaushikpauljoy@gmail.com' # আপনার জিমেইল অ্যাড্রেস
-EMAIL_HOST_PASSWORD = 'your email host password' # স্পেস ছাড়া
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASSWORD')
+
+# Stripe Configuration
+STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY')
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
