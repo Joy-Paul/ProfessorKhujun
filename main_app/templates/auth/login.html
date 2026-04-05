@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Login | Professorkhujun</title>
+</head>
+<body class="bg-slate-50 flex items-center justify-center min-h-screen">
+
+    <div class="bg-white p-10 rounded-3xl shadow-xl w-full max-w-md border border-gray-100">
+        <h2 class="text-3xl font-black text-center mb-2 text-gray-800">স্বাগতম!</h2>
+        <p class="text-center text-sm text-gray-500 mb-8">আপনার অ্যাকাউন্টে লগইন করুন</p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="{% if message.tags == 'error' %}bg-red-50 text-red-600 border-red-200{% else %}bg-green-50 text-green-600 border-green-200{% endif %} p-3 rounded-lg mb-4 text-sm font-bold text-center border">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" action="{% url 'login' %}" class="space-y-5">
+            {% csrf_token %}
+            
+            <input type="text" name="username" placeholder="ইউজারনেম" required class="w-full p-4 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200">
+            <input type="password" name="password" placeholder="পাসওয়ার্ড" required class="w-full p-4 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200">
+
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-blue-200">
+                লগইন করুন
+            </button>
+        </form>
+        
+        <p class="text-center text-sm text-gray-500 mt-6">
+            অ্যাকাউন্ট নেই? <a href="{% url 'signup' %}" class="text-blue-600 font-bold hover:underline">সাইন আপ করুন</a>
+        </p>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Professor Dashboard | Professorkhujun</title>
+</head>
+<body class="bg-slate-50 font-sans">
+
+    <header class="bg-blue-900 text-white py-6 px-8 flex justify-between items-center shadow-md">
+        <h1 class="text-2xl font-black tracking-tight">মেন্টর ড্যাশবোর্ড</h1>
+        <div class="flex items-center gap-4">
+            <a href="/" class="text-blue-200 hover:text-white font-bold text-sm transition">হোমপেজে যান</a>
+            <a href="{% url 'logout' %}" class="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg font-bold text-sm transition shadow">লগআউট</a>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto py-10 px-4">
+        
+        {% if messages %}
+            <div class="max-w-2xl mx-auto mb-8">
+                {% for message in messages %}
+                    <div class="bg-green-50 text-green-700 p-4 rounded-xl border border-green-200 font-bold text-center shadow-sm">
+                        ✅ {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% if not professor %}
+    
+            {% if has_pending_claim %}
+                <div class="bg-yellow-50 p-8 rounded-3xl border border-yellow-200 text-center max-w-2xl mx-auto shadow-sm">
+                    <div class="w-16 h-16 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">⏳</div>
+                    <h2 class="text-2xl font-black text-gray-800 mb-2">আপনার ক্লেইম রিকোয়েস্ট পেন্ডিং আছে</h2>
+                    <p class="text-gray-600">অ্যাডমিন আপনার রিকোয়েস্টটি যাচাই করছেন। অ্যাপ্রুভ হওয়ার পর আপনি এই ড্যাশবোর্ড থেকে আপনার প্রোফাইল ম্যানেজ করতে পারবেন।</p>
+                </div>
+            {% else %}
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-3xl font-black text-gray-800 mb-8 text-center">আপনি কী করতে চান?</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        
+                        <div class="bg-white p-8 rounded-3xl shadow-lg border-2 border-blue-100 hover:border-blue-300 transition flex flex-col">
+                            <div class="text-4xl mb-4">🔍</div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">আগে থেকেই প্রোফাইল আছে</h3>
+                            <p class="text-sm text-gray-500 mb-6 flex-grow">সাইটে যদি আপনার নাম আগে থেকেই থাকে, তবে সেটি সিলেক্ট করে অ্যাক্সেস নিন।</p>
+                            
+                            <form method="POST" class="mt-auto">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="claim_profile">
+                                <select name="professor_id" required class="w-full p-4 bg-gray-50 rounded-xl border border-gray-200 outline-none mb-4">
+                                    <option value="">আপনার নাম খুঁজুন...</option>
+                                    {% for prof in unclaimed_professors %}
+                                        <option value="{{ prof.id }}">{{ prof.name }} ({{ prof.university.name }})</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="w-full bg-blue-100 text-blue-700 hover:bg-blue-600 hover:text-white font-bold py-3 rounded-xl transition">
+                                    প্রোফাইল ক্লেইম করুন
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="bg-white p-8 rounded-3xl shadow-lg border-2 border-green-100 hover:border-green-300 transition flex flex-col">
+                            <div class="text-4xl mb-4">✨</div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">নতুন প্রোফাইল তৈরি করব</h3>
+                            <p class="text-sm text-gray-500 mb-6 flex-grow">যদি আপনার নাম ডাটাবেসে না থাকে, তবে নতুন করে আপনার বিস্তারিত তথ্য যোগ করুন।</p>
+                            
+                            <button onclick="document.getElementById('createForm').classList.toggle('hidden')" class="w-full mt-auto bg-green-100 text-green-700 hover:bg-green-600 hover:text-white font-bold py-3 rounded-xl transition">
+                                ফর্ম ওপেন করুন
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="createForm" class="hidden mt-8 bg-white p-8 md:p-12 rounded-3xl shadow-xl border border-gray-100">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">নতুন প্রোফাইল ফর্ম</h3>
+                        
+                        <form method="POST" enctype="multipart/form-data" class="space-y-5">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="create_profile">
+                            
+                            <input type="text" name="name" placeholder="আপনার পুরো নাম (Full Name)" required class="w-full p-4 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            
+                            <select name="university" required class="w-full p-4 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500 transition">
+                                <option value="">আপনার ইউনিভার্সিটি সিলেক্ট করুন</option>
+                                {% for uni in universities %}
+                                    <option value="{{ uni.id }}">{{ uni.name }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <input type="text" name="department" placeholder="ডিপার্টমেন্ট (যেমন: Computer Science)" required class="w-full p-4 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            
+                            <textarea name="research_area" placeholder="রিসার্চ এরিয়া (কমা দিয়ে লিখুন, যেমন: AI, Cyber Security)" required class="w-full p-4 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500 transition h-32 resize-none"></textarea>
+                            
+                            <input type="email" name="email" value="{{ user.email }}" readonly class="w-full p-4 bg-gray-100 rounded-xl border border-gray-200 text-gray-500 cursor-not-allowed">
+
+                            <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">প্রোফাইল পিকচার (ঐচ্ছিক)</label>
+                                <input type="file" name="image" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-6 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 transition cursor-pointer">
+                            </div>
+
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-blue-200 mt-4 text-lg">
+                                ভেরিফিকেশনের জন্য সাবমিট করুন
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+
+        {% else %}
+            <div class="{% if professor.is_verified %}bg-green-50 border-green-200{% else %}bg-yellow-50 border-yellow-200{% endif %} border p-4 rounded-xl mb-8 flex justify-between items-center shadow-sm">
+                <p class="text-sm font-bold {% if professor.is_verified %}text-green-700{% else %}text-yellow-700{% endif %}">
+                    অ্যাকাউন্ট স্ট্যাটাস: 
+                    {% if professor.is_verified %}
+                        <span class="uppercase tracking-wider ml-1">Verified & Live</span>
+                    {% else %}
+                        <span class="uppercase tracking-wider ml-1">Pending Admin Review</span>
+                    {% endif %}
+                </p>
+                {% if professor.is_verified %}
+                    <a href="{% url 'professor_detail' professor.id %}" target="_blank" class="text-xs bg-white border border-green-200 text-green-700 px-3 py-1 rounded-lg font-bold hover:bg-green-100 transition">View Live Profile</a>
+                {% endif %}
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center">
+                        {% if professor.image %}
+                            <img src="{{ professor.image.url }}" alt="Profile Photo" class="w-24 h-24 rounded-full object-cover border-4 border-blue-50 shadow-md mb-4">
+                        {% else %}
+                            <div class="w-24 h-24 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-4xl font-black mb-4 border-4 border-white shadow-md">
+                                {{ professor.name|slice:":1" }}
+                            </div>
+                        {% endif %}
+                        
+                        <h3 class="text-2xl font-bold text-center text-gray-800">{{ professor.name }}</h3>
+                        <p class="text-sm text-center text-gray-500 mb-6 font-medium">{{ professor.email }}</p>
+                        
+                        <div class="w-full space-y-4 border-t border-gray-100 pt-6">
+                            <div>
+                                <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Designation</p>
+                                <p class="text-sm text-gray-700 font-medium">{{ professor.designation|default:"Professor" }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Department</p>
+                                <p class="text-sm text-gray-700 font-medium">{{ professor.department }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">University</p>
+                                <p class="text-sm text-gray-700 font-medium">{{ professor.university.name }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Phone</p>
+                                <p class="text-sm text-gray-700 font-medium">{{ professor.phone|default:"Not Provided" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 space-y-8">
+                    
+                    <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                        <h2 class="text-xl font-bold text-gray-800 mb-2">প্রোফাইল আপডেট রিকোয়েস্ট</h2>
+                        <p class="text-sm text-gray-500 mb-6 leading-relaxed">আপনার লাইভ প্রোফাইলের কোনো তথ্য পরিবর্তন করতে চাইলে নিচে বিস্তারিত লিখে সাবমিট করুন। অ্যাডমিন তা ম্যানুয়ালি আপডেট করে দেবেন।</p>
+                        
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="update_request">
+                            <textarea name="changes" rows="4" placeholder="যেমন: আমার ফোন নম্বর পরিবর্তন করে +8801... করে দিন এবং ডেজিগনেশন 'Associate Professor' করুন।" required class="w-full p-4 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200 mb-4 resize-none transition"></textarea>
+                            
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition shadow-md shadow-blue-200">
+                                রিকোয়েস্ট পাঠান
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                        <h2 class="text-xl font-bold text-gray-800 mb-6">আপনার আগের রিকোয়েস্ট হিস্ট্রি</h2>
+                        
+                        <div class="space-y-4">
+                            {% for req in update_requests %}
+                            <div class="p-5 rounded-2xl border transition hover:shadow-sm {% if req.is_approved %}bg-green-50/50 border-green-100{% else %}bg-yellow-50/50 border-yellow-100{% endif %}">
+                                <div class="flex justify-between items-start mb-3">
+                                    <p class="text-xs text-gray-500 font-medium">{{ req.created_at|date:"d M Y, h:i A" }}</p>
+                                    {% if req.is_approved %}
+                                        <span class="bg-green-100 text-green-700 border border-green-200 text-[10px] px-2.5 py-1 rounded-md font-black uppercase tracking-wider">Approved</span>
+                                    {% else %}
+                                        <span class="bg-yellow-100 text-yellow-700 border border-yellow-200 text-[10px] px-2.5 py-1 rounded-md font-black uppercase tracking-wider">Pending</span>
+                                    {% endif %}
+                                </div>
+                                <p class="text-sm text-gray-700 italic leading-relaxed">"{{ req.requested_changes }}"</p>
+                            </div>
+                            {% empty %}
+                                <div class="text-center py-8">
+                                    <p class="text-sm text-gray-400 italic">আপনি এখনো কোনো প্রোফাইল আপডেট রিকোয়েস্ট পাঠাননি।</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        {% endif %}
+    </main>
+
+</body>
+</html>

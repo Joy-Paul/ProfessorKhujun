@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Sign Up | Professorkhujun</title>
+</head>
+<body class="bg-slate-50 flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-white p-10 rounded-3xl shadow-xl w-full max-w-md border border-gray-100">
+        <h2 class="text-3xl font-black text-center mb-2 text-gray-800">অ্যাকাউন্ট তৈরি করুন</h2>
+        <p class="text-center text-sm text-gray-500 mb-8">স্টুডেন্ট বা প্রফেসর হিসেবে যোগ দিন</p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm font-bold text-center border border-red-200">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" action="{% url 'signup' %}" class="space-y-5">
+            {% csrf_token %}
+            
+            <div class="flex gap-4 mb-4">
+                <label class="flex-1 cursor-pointer">
+                    <input type="radio" name="role" value="student" class="peer sr-only" checked>
+                    <div class="text-center p-3 rounded-xl border-2 peer-checked:border-blue-600 peer-checked:bg-blue-50 font-bold text-gray-600 transition">
+                        👨‍🎓 আমি স্টুডেন্ট
+                    </div>
+                </label>
+                <label class="flex-1 cursor-pointer">
+                    <input type="radio" name="role" value="professor" class="peer sr-only">
+                    <div class="text-center p-3 rounded-xl border-2 peer-checked:border-yellow-500 peer-checked:bg-yellow-50 font-bold text-gray-600 transition">
+                        👨‍🏫 আমি প্রফেসর
+                    </div>
+                </label>
+            </div>
+
+            <input type="text" name="username" placeholder="ইউজারনেম (Username)" required class="w-full p-4 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200">
+            
+            <input type="email" name="email" placeholder="ইমেইল (প্রফেসরদের .edu বাধ্যতামূলক)" required class="w-full p-4 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200">
+            
+            <input type="password" name="password" placeholder="পাসওয়ার্ড" required class="w-full p-4 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200">
+
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-blue-200">
+                সাইন আপ করুন
+            </button>
+        </form>
+        
+        <p class="text-center text-sm text-gray-500 mt-6">
+            আগে থেকেই অ্যাকাউন্ট আছে? <a href="{% url 'login' %}" class="text-blue-600 font-bold hover:underline">লগইন করুন</a>
+        </p>
+    </div>
+
+</body>
+</html>

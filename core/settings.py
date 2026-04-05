@@ -131,5 +131,24 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Deployment Security
 if not DEBUG:
-    ALLOWED_HOSTS = ['*'] # রেন্ডার বা আপনার ডোমেইনের নাম এখানে দিতে পারেন
+    ALLOWED_HOSTS = ['https://professorkhujun.onrender.com'] # রেন্ডার বা আপনার ডোমেইনের নাম এখানে দিতে পারেন
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
+# মিডিয়া ফাইল সেটিংস
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# settings.py
+STRIPE_PUBLIC_KEY = 'your stripe public key here'  # আপনার Stripe পাবলিক কী
+STRIPE_SECRET_KEY = 'your stripe secret key here'  # আপনার Stripe সেক্রেট কী
+
+# settings.py
+
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'kaushikpauljoy@gmail.com' # আপনার জিমেইল অ্যাড্রেস
+EMAIL_HOST_PASSWORD = 'your email host password' # স্পেস ছাড়া

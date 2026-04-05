@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Student Dashboard | Professorkhujun</title>
+</head>
+<body class="bg-slate-50 font-sans min-h-screen flex flex-col">
+
+    <header class="bg-blue-900 text-white py-6 px-8 flex justify-between items-center shadow-md">
+        <h1 class="text-2xl font-black tracking-tight">স্টুডেন্ট ড্যাশবোর্ড</h1>
+        <div class="flex items-center gap-4">
+            <a href="/" class="text-blue-200 hover:text-white font-bold text-sm transition">হোমপেজে যান</a>
+            <a href="{% url 'logout' %}" class="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg font-bold text-sm transition shadow">লগআউট</a>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto py-12 px-6 flex-grow w-full">
+        
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 mb-8 flex justify-between items-center">
+            <div>
+                <h2 class="text-3xl font-black text-gray-800 mb-1">হ্যালো, {{ user.username }} 👋</h2>
+                <p class="text-gray-500 font-medium text-sm">আপনার সেভ করা মেন্টরদের তালিকা নিচে দেওয়া হলো।</p>
+            </div>
+            <div class="bg-blue-50 px-6 py-3 rounded-2xl border border-blue-100 text-center">
+                <span class="block text-2xl font-black text-blue-600">{{ saved_profs.count }}</span>
+                <span class="text-xs font-bold text-blue-800 uppercase tracking-wider">Saved Profiles</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for item in saved_profs %}
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:border-blue-200 transition-all duration-300 group flex flex-col h-full relative">
+                
+                <form action="{% url 'toggle_bookmark' item.professor.id %}" method="POST" class="absolute top-4 right-4 z-10">
+                    {% csrf_token %}
+                    <button type="submit" title="Remove Bookmark" class="w-8 h-8 bg-blue-50 text-blue-600 hover:bg-red-50 hover:text-red-600 rounded-full flex items-center justify-center transition border border-transparent hover:border-red-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v14l-7-3.5L3 18V4z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </form>
+
+                <div class="flex items-center gap-5 mb-6">
+                    <div class="shrink-0">
+                        {% if item.professor.image %}
+                            <img src="{{ item.professor.image.url }}" class="w-16 h-16 rounded-full object-cover border-2 border-blue-50">
+                        {% else %}
+                            <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 text-2xl font-black border-2 border-blue-100">
+                                {{ item.professor.name|slice:":1" }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-lg font-black text-gray-800 group-hover:text-blue-600 transition">{{ item.professor.name }}</h4>
+                        <p class="text-xs text-yellow-600 font-bold mb-1">⭐ {{ item.professor.average_rating }} Rating</p>
+                        <p class="text-xs text-gray-500 font-medium truncate w-40">{{ item.professor.university.name }}</p>
+                    </div>
+                </div>
+
+                <a href="{% url 'professor_detail' item.professor.id %}" class="mt-auto block w-full text-center bg-gray-50 hover:bg-blue-600 text-gray-700 hover:text-white font-bold py-3 rounded-xl transition text-sm border border-gray-200 hover:border-blue-600">
+                    প্রোফাইল দেখুন
+                </a>
+            </div>
+            {% empty %}
+                <div class="col-span-full bg-white p-12 rounded-3xl border border-gray-100 text-center shadow-sm">
+                    <div class="text-6xl mb-4">🔖</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">আপনি এখনো কাউকে সেভ করেননি</h3>
+                    <p class="text-gray-500 text-sm mb-6 max-w-md mx-auto">হোমপেজ থেকে প্রফেসরদের প্রোফাইল ঘুরে দেখুন এবং আপনার পছন্দের মেন্টরদের সেভ করে রাখুন।</p>
+                    <a href="/" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition shadow-md shadow-blue-200">
+                        প্রফেসর খুঁজুন
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+
+    </main>
+
+</body>
+</html>

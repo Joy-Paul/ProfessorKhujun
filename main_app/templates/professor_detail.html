@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>{{ professor.name }} | Professorkhujun</title>
+    <style>
+        html { scroll-behavior: smooth; }
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-scroll {
+            display: flex;
+            width: max-content;
+            animation: scroll 30s linear infinite;
+        }
+        .animate-scroll:hover { animation-play-state: paused; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans">
+
+    <nav class="bg-white border-b border-gray-100 py-4 px-6 flex justify-between items-center sticky top-0 z-50 shadow-sm">
+        <a href="/" class="text-2xl font-black text-blue-900 tracking-tight">Professorkhujun<span class="text-yellow-500">.com</span></a>
+        <div class="flex items-center gap-4">
+            <a href="/" class="text-blue-600 font-bold text-sm hover:underline">হোমপেজে যান</a>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto py-10 px-4 space-y-8">
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="bg-green-50 text-green-700 p-4 rounded-xl border border-green-200 font-bold text-center">✅ {{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-8 relative">
+            
+            <a href="#reviews" class="absolute top-8 right-8 text-right group z-10 cursor-pointer bg-yellow-50 px-4 py-2 rounded-xl border border-yellow-100 hover:bg-yellow-100 transition">
+                <div class="flex flex-col items-end">
+                    <span class="text-yellow-500 font-black text-2xl flex items-center gap-1">
+                        ⭐ {{ professor.average_rating }}<span class="text-sm text-yellow-600/60">/5</span>
+                    </span>
+                    <span class="text-[10px] text-yellow-600 uppercase font-bold tracking-wider mt-0.5 group-hover:underline">See {{ reviews.count }} Reviews</span>
+                </div>
+            </a>
+
+            <div class="shrink-0">
+                {% if professor.image %}
+                    <img src="{{ professor.image.url }}" alt="{{ professor.name }}" class="w-36 h-48 object-cover rounded-xl border-4 border-blue-50 shadow-md">
+                {% else %}
+                    <div class="w-36 h-48 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 text-5xl font-black border-4 border-blue-100 shadow-md">
+                        {{ professor.name|slice:":1" }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="flex-grow pt-2">
+                <div class="flex items-center gap-4 mb-1">
+                    <h1 class="text-4xl font-black text-gray-800">{{ professor.name }}</h1>
+                    
+                    <form action="{% url 'toggle_bookmark' professor.id %}" method="POST" class="m-0">
+                        {% csrf_token %}
+                        <button type="submit" title="{% if is_bookmarked %}Remove Bookmark{% else %}Save Profile{% endif %}" class="w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 shadow-sm
+                            {% if is_bookmarked %} bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-200 {% else %} bg-white border border-gray-200 text-gray-400 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50 {% endif %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="{% if is_bookmarked %}currentColor{% else %}none{% endif %}" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+                
+                <p class="text-lg text-blue-600 font-bold mb-1">{{ professor.designation|default:"Professor" }}</p>
+                <p class="text-sm text-gray-500 font-medium mb-4">{{ professor.department }} • {{ professor.university.name }}</p>
+                
+                <div class="space-y-2 mb-6">
+                    <p class="text-sm text-gray-700 flex items-center gap-2"><span>📧</span> <a href="mailto:{{ professor.email }}" class="hover:text-blue-600 hover:underline">{{ professor.email }}</a></p>
+                    {% if professor.phone %}
+                    <p class="text-sm text-gray-700 flex items-center gap-2"><span>📞</span> {{ professor.phone }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="flex flex-wrap gap-3">
+                    {% if professor.uni_website %}
+                    <a href="{{ professor.uni_website }}" target="_blank" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-bold rounded-xl transition flex items-center gap-2">
+                        🏛️ University Website
+                    </a>
+                    {% endif %}
+                    {% if professor.website %}
+                    <a href="{{ professor.website }}" target="_blank" class="px-5 py-2.5 bg-blue-50 hover:bg-blue-100 border border-blue-100 text-blue-700 text-sm font-bold rounded-xl transition flex items-center gap-2">
+                        🌐 Personal Website
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-8">
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><span class="text-2xl">📝</span> Biography</h2>
+                    <p class="text-gray-600 leading-relaxed text-sm whitespace-pre-line">{{ professor.bio|default:"বিস্তারিত তথ্য এখনো যুক্ত করা হয়নি।" }}</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><span class="text-2xl">📚</span> Selected Publications</h2>
+                    {% if professor.publications %}
+                        <ul class="list-disc pl-5 space-y-3 text-sm text-gray-700">
+                            <p class="leading-relaxed">{{ professor.publications|linebreaksbr }}</p>
+                        </ul>
+                    {% else %}
+                        <p class="text-sm text-gray-400 italic">এখনো কোনো পাবলিকেশন যুক্ত করা হয়নি।</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="space-y-8">
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><span class="text-2xl">🔬</span> Lab Details</h2>
+                    {% if professor.lab_name or professor.lab_description %}
+                        <h3 class="font-bold text-blue-700 mb-2">{{ professor.lab_name|default:"Research Lab" }}</h3>
+                        <p class="text-sm text-gray-600 mb-4 leading-relaxed">{{ professor.lab_description }}</p>
+                        
+                        {% if professor.lab_image %}
+                            <img src="{{ professor.lab_image.url }}" alt="Lab Image" class="w-full h-40 object-cover rounded-xl border border-gray-200">
+                        {% endif %}
+                    {% else %}
+                        <p class="text-sm text-gray-400 italic">ল্যাবের কোনো তথ্য পাওয়া যায়নি।</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div id="reviews" class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 scroll-mt-24">
+            <div class="flex justify-between items-end mb-8 border-b pb-4">
+                <div>
+                    <h2 class="text-2xl font-black text-gray-800">Ratings & Reviews</h2>
+                    <p class="text-sm text-gray-500 mt-1">শিক্ষার্থীদের মতামত</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-yellow-500 font-black text-3xl">⭐ {{ professor.average_rating }}</span>
+                </div>
+            </div>
+
+            <div class="mb-10 bg-gray-50 p-6 rounded-2xl border border-gray-200">
+                {% if user.is_authenticated %}
+                    {% if user.student_profile.is_verified %}
+                        <h4 class="font-bold text-gray-800 mb-4">আপনার মতামত দিন</h4>
+                        <form method="POST" class="space-y-4">
+                            {% csrf_token %}
+                            <div>
+                                <label class="block text-sm font-bold text-gray-600 mb-2">রেটিং (১ থেকে ৫)</label>
+                                <input type="number" name="rating" min="1" max="5" required class="w-24 p-3 bg-white rounded-xl border outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-600 mb-2">আপনার অভিজ্ঞতা লিখুন</label>
+                                <textarea name="comment" rows="3" required class="w-full p-4 bg-white rounded-xl border outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+                            </div>
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition shadow-md">রিভিউ সাবমিট করুন</button>
+                        </form>
+                    {% else %}
+                        <p class="text-sm text-yellow-700 font-bold text-center">আপনার স্টুডেন্ট আইডিটি এখনো ভেরিফাইড হয়নি। ভেরিফাইড হলে আপনি রিভিউ দিতে পারবেন।</p>
+                    {% endif %}
+                {% else %}
+                    <p class="text-sm text-blue-700 font-bold text-center">রিভিউ দিতে হলে আপনাকে <a href="{% url 'login' %}" class="underline">লগইন</a> করতে হবে।</p>
+                {% endif %}
+            </div>
+
+            <div class="space-y-6 max-h-[500px] overflow-y-auto pr-2">
+                {% for review in reviews %}
+                <div class="p-6 rounded-2xl border border-gray-100 bg-white shadow-sm">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <p class="font-bold text-gray-800">{{ review.user.username }}</p>
+                            <p class="text-xs text-gray-400">{{ review.created_at|date:"M d, Y" }}</p>
+                        </div>
+                        <span class="bg-yellow-50 text-yellow-600 font-bold px-2 py-1 rounded text-sm border border-yellow-100">
+                            ⭐ {{ review.rating }}/5
+                        </span>
+                    </div>
+                    <p class="text-sm text-gray-600 leading-relaxed">{{ review.comment }}</p>
+                </div>
+                {% empty %}
+                <div class="text-center py-10">
+                    <p class="text-gray-400 italic">এখনো কোনো রিভিউ দেওয়া হয়নি। প্রথম রিভিউটি আপনিই দিন!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if top_reviews %}
+        <div class="bg-blue-900 rounded-3xl p-10 shadow-lg overflow-hidden mt-12">
+            <div class="mb-8 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-blue-100 flex items-center gap-2">
+                    <span class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></span> What Students Say
+                </h2>
+            </div>
+            
+            <div class="animate-scroll whitespace-nowrap flex gap-8">
+                {% for review in top_reviews %}
+                <div class="inline-block bg-white/10 hover:bg-white/20 p-6 rounded-2xl border border-white/10 min-w-[320px] max-w-[320px] transition backdrop-blur-sm whitespace-normal">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-blue-500/30 rounded-full flex items-center justify-center font-bold text-white border border-white/20">
+                                {{ review.user.username|slice:":1"|upper }}
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-white truncate">{{ review.user.username }}</h4>
+                                <p class="text-[10px] text-blue-300">{{ review.created_at|date:"M d, Y" }}</p>
+                            </div>
+                        </div>
+                        <span class="bg-yellow-400/20 text-yellow-400 font-bold px-2 py-0.5 rounded text-xs border border-yellow-400/30">
+                            ⭐ {{ review.rating }}/5
+                        </span>
+                    </div>
+                    <p class="text-sm text-gray-200 leading-relaxed italic">
+                        "{{ review.comment|truncatechars:120 }}"
+                    </p>
+                </div>
+                {% endfor %}
+                
+                {% for review in top_reviews %}
+                <div class="inline-block bg-white/10 hover:bg-white/20 p-6 rounded-2xl border border-white/10 min-w-[320px] max-w-[320px] transition backdrop-blur-sm whitespace-normal">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-blue-500/30 rounded-full flex items-center justify-center font-bold text-white border border-white/20">
+                                {{ review.user.username|slice:":1"|upper }}
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-white truncate">{{ review.user.username }}</h4>
+                                <p class="text-[10px] text-blue-300">{{ review.created_at|date:"M d, Y" }}</p>
+                            </div>
+                        </div>
+                        <span class="bg-yellow-400/20 text-yellow-400 font-bold px-2 py-0.5 rounded text-xs border border-yellow-400/30">
+                            ⭐ {{ review.rating }}/5
+                        </span>
+                    </div>
+                    <p class="text-sm text-gray-200 leading-relaxed italic">
+                        "{{ review.comment|truncatechars:120 }}"
+                    </p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+    </main>
+</body>
+</html>
