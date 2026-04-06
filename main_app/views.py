@@ -13,7 +13,7 @@ from django.urls import reverse
 from django.contrib import messages
 
 # আপনার তৈরি করা মডেলগুলো
-from .models import Professor, Review, University, StudentProfile, ProfessorUpdateRequest, ProfileClaimRequest, Bookmark
+from .models import Professor, Review, University, StudentProfile, ProfessorUpdateRequest, ProfileClaimRequest, Bookmark, Report
 
 # ==========================================
 # ১. হোমপেজ ভিউ
