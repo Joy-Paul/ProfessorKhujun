@@ -51,6 +51,8 @@ def home(request):
         'selected_uni': uni_id,
         'selected_country': country_name,
         'selected_dept': dept_name,
+        # --- এই নতুন লাইনটি যোগ করুন ---
+        'query': query,
     })
 
 # ==========================================
