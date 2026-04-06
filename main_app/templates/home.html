@@ -1,289 +1,4 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <title>Professorkhujun | প্রফেসরের খোঁজ এখন সহজ</title>
-    <style>
-        /* অটো-স্লাইডিং অ্যানিমেশন */
-        @keyframes scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-        .animate-scroll {
-            display: flex;
-            width: max-content;
-            animation: scroll 40s linear infinite;
-        }
-        .animate-scroll:hover {
-            animation-play-state: paused;
-        }
-    </style>
-</head>
-<body class="bg-slate-50 font-sans">
-
-    <nav class="bg-white border-b border-gray-100 py-4 px-6 flex justify-between items-center sticky top-0 z-50">
-    
-    <a href="/" class="text-2xl font-black text-blue-900 tracking-tight">
-        Professorkhujun<span class="text-yellow-500">.com</span>
-    </a>
-    <div class="flex items-center gap-4">
-    {% if user.is_authenticated %}
-        <span class="text-sm font-bold text-gray-500 hidden md:block">হ্যালো, {{ user.username }}</span>
-        
-        {% if user.is_staff %}
-            <a href="/admin/" class="text-blue-600 font-bold text-sm hover:underline">অ্যাডমিন প্যানেল</a>
-        {% elif user.professor_profile %}
-            <a href="{% url 'professor_dashboard' %}" class="text-blue-600 font-bold text-sm hover:underline">মেন্টর ড্যাশবোর্ড</a>
-        {% else %}
-            <a href="{% url 'student_dashboard' %}" class="flex items-center gap-1 text-blue-600 font-bold text-sm hover:bg-blue-50 px-3 py-1.5 rounded-lg transition border border-transparent hover:border-blue-100">
-                🔖 বুকমার্কস
-            </a>
-        {% endif %}
-
-        <a href="{% url 'logout' %}" class="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-bold hover:bg-red-100 transition text-sm">লগআউট</a>
-    {% else %}
-        <a href="{% url 'login' %}" class="text-blue-600 font-bold hover:text-blue-800 transition text-sm">লগইন</a>
-        <a href="{% url 'signup' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-bold transition shadow-md shadow-blue-200 text-sm">সাইন আপ</a>
-    {% endif %}
-
-    <button onclick="document.getElementById('donateModal').classList.remove('hidden')" class="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 px-4 py-2 rounded-xl font-bold text-sm transition shadow-sm">
-    <span>🎁</span> সাপোর্ট করুন
-</button>
-</div>
-</nav>
-
-    <header class="bg-gradient-to-r from-blue-800 to-indigo-900 text-white py-16 px-6 shadow-2xl">
-        <div class="max-w-6xl mx-auto">
-            <h1 class="text-5xl font-black mb-4 text-center tracking-tight">Professorkhujun<span class="text-yellow-400">.com</span></h1>
-            <p class="text-xl md:text-2xl text-blue-100 mb-10 text-center font-light">
-                উচ্চশিক্ষার জন্য বিশ্বের সেরা প্রফেসরদের ডাটাবেস থেকে আপনার মেন্টর খুঁজে নিন।
-            </p>
-            
-            <form method="GET" class="space-y-6">
-                <div class="relative flex items-center max-w-3xl mx-auto shadow-2xl">
-                    <input type="text" name="q" value="{{ query|default:'' }}" 
-                           placeholder="রিসার্চ এরিয়া বা প্রফেসরের নাম..." 
-                           class="w-full p-5 rounded-full text-gray-800 outline-none focus:ring-4 focus:ring-yellow-400 text-lg">
-                    <button type="submit" class="absolute right-2 bg-yellow-500 hover:bg-yellow-400 text-blue-900 font-bold py-3 px-8 rounded-full transition duration-300">
-                        খুঁজুন
-                    </button>
-                </div>
-
-                <div class="flex flex-wrap justify-center gap-3">
-                    <select name="university" class="appearance-none bg-white/10 hover:bg-white/20 border border-white/30 text-white text-xs rounded-full py-2 px-4 outline-none cursor-pointer transition">
-                        <option value="" class="text-gray-800">সব ইউনিভার্সিটি</option>
-                        {% for uni in universities %}
-                        <option value="{{ uni.id }}" {% if selected_uni == uni.id|stringformat:"i" %}selected{% endif %} class="text-gray-800">{{ uni.name }}</option>
-                        {% endfor %}
-                    </select>
-
-                    <select name="country" class="appearance-none bg-white/10 hover:bg-white/20 border border-white/30 text-white text-xs rounded-full py-2 px-4 outline-none cursor-pointer transition">
-                        <option value="" class="text-gray-800">সব দেশ</option>
-                        {% for country in countries %}
-                        <option value="{{ country }}" {% if selected_country == country %}selected{% endif %} class="text-gray-800">{{ country }}</option>
-                        {% endfor %}
-                    </select>
-
-                    <select name="department" class="appearance-none bg-white/10 hover:bg-white/20 border border-white/30 text-white text-xs rounded-full py-2 px-4 outline-none cursor-pointer transition">
-                        <option value="" class="text-gray-800">সব ডিপার্টমেন্ট</option>
-                        {% for dept in departments %}
-                        <option value="{{ dept }}" {% if selected_dept == dept %}selected{% endif %} class="text-gray-800">{{ dept }}</option>
-                        {% endfor %}
-                    </select>
-
-                    {% if query or selected_uni or selected_country or selected_dept %}
-                    <a href="/" class="text-xs text-yellow-400 hover:underline flex items-center ml-2">ফিল্টার রিসেট</a>
-                    {% endif %}
-                </div>
-            </form>
-        </div>
-    </header>
-
-    {% if not query and not selected_uni and not selected_country and not selected_dept %}
-    <div class="bg-white border-b border-gray-100 py-8 overflow-hidden">
-        <div class="container mx-auto px-4 mb-4">
-            <h2 class="text-xs font-bold text-blue-600 uppercase tracking-widest flex items-center gap-2">
-                <span class="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></span>
-                Top Rated Mentors
-            </h2>
-        </div>
-        
-        <div class="animate-scroll">
-            {% for prof in professors|slice:":10" %}
-            <a href="{% url 'professor_detail' prof.id %}" class="inline-flex items-center gap-4 bg-gray-50 px-6 py-4 rounded-2xl border border-gray-100 mx-3 min-w-[280px] hover:border-blue-400 hover:bg-white transition shadow-sm">
-                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center font-bold text-blue-800 border">
-                    {{ prof.name|slice:":1" }}
-                </div>
-                <div>
-                    <h4 class="text-sm font-bold text-gray-800">{{ prof.name }}</h4>
-                    <p class="text-[10px] text-yellow-600 font-bold">⭐ 4.9 Rating</p>
-                </div>
-            </a>
-            {% endfor %}
-            {% for prof in professors|slice:":10" %}
-            <a href="{% url 'professor_detail' prof.id %}" class="inline-flex items-center gap-4 bg-gray-50 px-6 py-4 rounded-2xl border border-gray-100 mx-3 min-w-[280px]">
-                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center font-bold text-blue-800 border">
-                    {{ prof.name|slice:":1" }}
-                </div>
-                <div>
-                    <h4 class="text-sm font-bold text-gray-800">{{ prof.name }}</h4>
-                    <p class="text-[10px] text-yellow-600 font-bold">⭐ 4.9 Rating</p>
-                </div>
-            </a>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-
-    <main class="container mx-auto py-12 px-6">
-        <h2 class="text-2xl font-bold text-gray-800 mb-10 flex items-center gap-3">
-            <span class="w-1.5 h-8 bg-yellow-500 rounded-full"></span>
-            {% if query or selected_uni %} সার্চের ফলাফল {% else %} সকল প্রফেসরবৃন্দ {% endif %}
-        </h2> -->
-<!-- ################################################# -->
-        <!-- <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {% for prof in professors %}
-            <div class="bg-white rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 overflow-hidden group flex flex-col">
-                <div class="p-8 flex-grow">
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center gap-4">
-                            {% if prof.image %}
-                                <img src="{{ prof.image.url }}" class="w-16 h-16 rounded-full object-cover border-2 border-blue-500 p-0.5">
-                            {% else %}
-                                <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 text-2xl font-bold border border-blue-100">
-                                    {{ prof.name|slice:":1" }}
-                                </div>
-                            {% endif %}
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-900 group-hover:text-blue-700 transition">{{ prof.name }}</h3>
-                                <p class="text-xs text-gray-500 font-medium">{{ prof.university.name }}</p>
-                            </div>
-                        </div>
-                        
-                        <div class="text-right">
-                            <span class="text-yellow-500 font-black text-lg block leading-none">⭐ 4.8</span>
-                            <span class="text-[10px] text-gray-400 uppercase font-bold">Rating</span>
-                        </div>
-                    </div>
-                    
-                    <div class="space-y-3 mb-6">
-                        <div class="flex items-center gap-2 text-sm text-gray-600">
-                            <span class="font-bold text-gray-800">ডিপার্টমেন্ট:</span> {{ prof.department }}
-                        </div>
-                        <p class="text-sm text-gray-500 italic leading-relaxed">
-                            "{{ prof.research_area|truncatechars:100 }}"
-                        </p>
-                    </div>
-
-                    <div class="flex flex-col gap-3 mt-auto">
-                        <a href="{% url 'professor_detail' prof.id %}" class="w-full text-center bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-100">
-                            বিস্তারিত প্রোফাইল দেখুন
-                        </a>
-                        <div class="flex justify-between items-center px-2">
-                            <a href="mailto:{{ prof.email }}" class="text-blue-600 hover:text-blue-800 text-sm font-bold flex items-center gap-1">
-                                ✉️ ইমেইল
-                            </a>
-                            {% if prof.website %}
-                            <a href="{{ prof.website }}" target="_blank" class="text-gray-400 hover:text-gray-600 text-sm font-bold">
-                                🔗 ওয়েবসাইট
-                            </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-span-full text-center py-20 bg-white rounded-3xl border-2 border-dashed border-gray-200">
-                <p class="text-gray-400 text-xl italic">দুঃখিত, কোনো প্রফেসর খুঁজে পাওয়া যায়নি।</p>
-                <a href="/" class="text-blue-600 font-bold mt-4 inline-block underline">সবাইকে দেখুন</a>
-            </div>
-            {% endfor %}
-        </div> -->
-        <!-- ################################### -->
-
-
-
-        <!-- <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-    {% for prof in professors %}
-    <div class="bg-white rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 overflow-hidden group relative flex flex-col p-8">
-        
-        <div class="absolute top-8 right-8 text-right z-10">
-            <div class="flex flex-col items-end">
-                <span class="text-yellow-500 font-black text-xl flex items-center gap-1">
-    <span class="text-lg">⭐</span> {{ prof.average_rating }}<span class="text-sm text-gray-400 font-medium">/5</span>
-</span>
-                <span class="text-[10px] text-gray-400 uppercase font-bold tracking-wider mt-0.5">Avg Rating</span>
-            </div>
-        </div>
-
-        <div class="flex items-start gap-4 mb-6 pr-24"> {% if prof.image %}
-                <img src="{{ prof.image.url }}" class="w-16 h-16 rounded-full object-cover border-2 border-blue-500 p-0.5 shadow-sm shrink-0">
-            {% else %}
-                <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 text-2xl font-bold border border-blue-100 shadow-sm shrink-0">
-                    {{ prof.name|slice:":1" }}
-                </div>
-            {% endif %}
-            
-            <div>
-                <a href="{% url 'professor_detail' prof.id %}">
-                    <h3 class="text-xl font-bold text-gray-900 group-hover:text-blue-700 transition">{{ prof.name }}</h3>
-                </a>
-                <p class="text-sm text-blue-600 font-bold mt-0.5">{{ prof.designation }}</p>
-                <p class="text-xs text-gray-500 font-medium">{{ prof.university.name }}</p>
-            </div>
-        </div>
-        
-        <div class="space-y-4 mb-6 flex-grow">
-            <div class="inline-block bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">
-                {{ prof.department }}
-            </div>
-            
-            <p class="text-sm text-gray-600 italic leading-relaxed">
-                "{{ prof.research_area|truncatechars:90 }}"
-            </p>
-        </div>
-
-        <div class="space-y-2.5 mb-8 text-sm font-medium text-gray-600 border-t border-gray-50 pt-5">
-            <div class="flex items-center gap-3">
-                <span class="text-gray-400">📧</span>
-                <a href="mailto:{{ prof.email }}" class="hover:text-blue-600 transition truncate">{{ prof.email }}</a>
-            </div>
-            <div class="flex items-center gap-3">
-    <span class="text-gray-400">📞</span>
-    <span>
-        {% if prof.phone %}
-            {{ prof.phone }}
-        {% else %}
-            Not Available
-        {% endif %}
-    </span>
-</div>
-        </div>
-
-        <div class="flex flex-col gap-3 mt-auto">
-            <a href="{% url 'professor_detail' prof.id %}" class="w-full text-center bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-100">
-                বিস্তারিত প্রোফাইল দেখুন
-            </a>
-            
-            {% if prof.website %}
-            <div class="text-center mt-2">
-                <a href="{{ prof.website }}" target="_blank" class="text-gray-500 hover:text-blue-600 text-sm font-bold inline-flex items-center gap-1.5 transition">
-                    🌐 পার্সোনাল ওয়েবসাইট
-                </a>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-    {% empty %}
-    <div class="col-span-full text-center py-20 bg-white rounded-3xl border-2 border-dashed border-gray-200">
-        <p class="text-gray-400 text-xl italic">দুঃখিত, কোনো প্রফেসর খুঁজে পাওয়া যায়নি।</p>
-        <a href="/" class="text-blue-600 font-bold mt-4 inline-block underline">সবাইকে দেখুন</a>
-    </div>
-    {% endfor %}
-</div>
-
+<!--
 <div class="bg-blue-900 rounded-3xl p-10 shadow-xl my-16 text-center relative overflow-hidden">
             <div class="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
                 <svg width="200" height="200" viewBox="0 0 24 24" fill="currentColor" class="text-white">
@@ -393,10 +108,6 @@
 </body>
 </html> -->
 
-
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -445,9 +156,10 @@
                 <a href="{% url 'login' %}" class="text-blue-600 font-bold hover:text-blue-800 transition text-sm">লগইন</a>
                 <a href="{% url 'signup' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-bold transition shadow-md shadow-blue-200 text-sm">সাইন আপ</a>
             {% endif %}
-<a href="{% url 'university_deadlines' %}" class="hidden md:flex items-center gap-1 text-gray-600 hover:text-blue-600 font-bold text-sm transition">
-    📅 ডেডলাইন ট্র্যাকার
-</a>
+            
+            <a href="{% url 'university_deadlines' %}" class="hidden md:flex items-center gap-1 text-gray-600 hover:text-blue-600 font-bold text-sm transition">
+                📅 ডেডলাইন ট্র্যাকার
+            </a>
             <button onclick="document.getElementById('donateModal').classList.remove('hidden')" class="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 px-4 py-2 rounded-xl font-bold text-sm transition shadow-sm">
                 <span>🎁</span> সাপোর্ট করুন
             </button>
@@ -562,6 +274,14 @@
             {% for prof in professors %}
             <div class="bg-white rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 overflow-hidden group relative flex flex-col p-8">
                 
+                {% if query %}
+                    <div class="absolute top-8 left-0 z-10">
+                        <span class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-900 text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-r-lg shadow-sm border border-yellow-500 flex items-center gap-1.5">
+                            <span class="animate-pulse">✨</span> Best Match
+                        </span>
+                    </div>
+                {% endif %}
+
                 <div class="absolute top-8 right-8 text-right z-10">
                     <div class="flex flex-col items-end">
                         <span class="text-yellow-500 font-black text-xl flex items-center gap-1">
@@ -571,7 +291,7 @@
                     </div>
                 </div>
 
-                <div class="flex items-start gap-4 mb-6 pr-24"> 
+                <div class="flex items-start gap-4 mb-6 pr-24 mt-2"> 
                     {% if prof.image %}
                         <img src="{{ prof.image.url }}" class="w-16 h-16 rounded-full object-cover border-2 border-blue-500 p-0.5 shadow-sm shrink-0">
                     {% else %}
@@ -636,6 +356,89 @@
                 <a href="/" class="text-blue-600 font-bold mt-4 inline-block underline">সবাইকে দেখুন</a>
             </div>
             {% endfor %}
+        </div>
+
+        <div class="mt-24 mb-16">
+            <div class="flex justify-between items-end mb-10">
+                <div>
+                    <h2 class="text-3xl font-black text-gray-800 flex items-center gap-3">
+                        <span class="text-4xl">🚀</span> Community & Resources
+                    </h2>
+                    <p class="text-gray-500 mt-2 font-medium">উচ্চশিক্ষার প্রস্তুতি, গাইডলাইন এবং সফলদের গল্প।</p>
+                </div>
+                <a href="#" class="hidden md:block text-blue-600 font-bold hover:underline">সবগুলো দেখুন →</a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                
+                <a href="#" class="group bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col">
+                    <div class="h-48 bg-gradient-to-br from-indigo-500 to-purple-600 relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9IiNmZmYiLz48L3N2Zz4=')]"></div>
+                        <div class="absolute bottom-4 left-4 bg-white/20 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full border border-white/30">
+                            📝 Application Guide
+                        </div>
+                    </div>
+                    <div class="p-6 flex-grow flex flex-col">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3 group-hover:text-blue-600 transition">SOP (Statement of Purpose) লেখার এ টু জেড গাইডলাইন</h3>
+                        <p class="text-gray-500 text-sm mb-6 line-clamp-3 leading-relaxed">
+                            একটি শক্তিশালী SOP কীভাবে আপনার ফান্ডিং নিশ্চিত করতে পারে? ইন্ট্রোডাকশন থেকে শুরু করে রিসার্চ ইন্টারেস্ট লেখার সঠিক নিয়ম জানুন এই আর্টিকেলে।
+                        </p>
+                        <div class="mt-auto flex items-center gap-3 text-xs font-bold text-gray-400">
+                            <span>⏱️ ৫ মিনিট পড়া</span>
+                            <span>•</span>
+                            <span>১.২k ভিউ</span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="#" class="group bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col">
+                    <div class="h-48 bg-gradient-to-br from-emerald-400 to-teal-600 relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9IiNmZmYiLz48L3N2Zz4=')]"></div>
+                        <div class="absolute bottom-4 left-4 bg-white/20 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full border border-white/30">
+                            ✉️ Communication
+                        </div>
+                    </div>
+                    <div class="p-6 flex-grow flex flex-col">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3 group-hover:text-teal-600 transition">প্রফেসরকে কোল্ড ইমেইল করার সঠিক ফরম্যাট (টেমপ্লেট সহ)</h3>
+                        <p class="text-gray-500 text-sm mb-6 line-clamp-3 leading-relaxed">
+                            দিনে শত শত ইমেইলের ভিড়ে আপনার ইমেইলটি কীভাবে প্রফেসরের নজরে পড়বে? সাবজেক্ট লাইন এবং ইমেইল বডির ৫টি প্রমাণিত টেমপ্লেট।
+                        </p>
+                        <div class="mt-auto flex items-center gap-3 text-xs font-bold text-gray-400">
+                            <span>⏱️ ৩ মিনিট পড়া</span>
+                            <span>•</span>
+                            <span>৩.৪k ভিউ</span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="#" class="group bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col">
+                    <div class="h-48 bg-gradient-to-br from-amber-400 to-orange-500 relative flex items-center justify-center overflow-hidden">
+                        <div class="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9IiNmZmYiLz48L3N2Zz4=')]"></div>
+                        <div class="w-20 h-20 bg-white rounded-full p-1 shadow-lg z-10 relative border-4 border-orange-200">
+                            <img src="https://ui-avatars.com/api/?name=Rahim+Uddin&background=random" class="w-full h-full rounded-full object-cover">
+                        </div>
+                        <div class="absolute bottom-4 left-4 bg-white/20 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full border border-white/30">
+                            🎓 Success Story
+                        </div>
+                    </div>
+                    <div class="p-6 flex-grow flex flex-col">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3 group-hover:text-orange-600 transition">CGPA 3.2 নিয়েই কীভাবে ফুল-ফান্ডেড PhD ম্যানেজ করলাম?</h3>
+                        <p class="text-gray-500 text-sm mb-6 line-clamp-3 leading-relaxed">
+                            "সবাই বলত লো সিজিপিএ নিয়ে আমেরিকায় ফান্ডিং পাওয়া অসম্ভব। কিন্তু আমি ফোকাস করেছিলাম আমার রিসার্চ পেপার এবং কোল্ড ইমেইলিংয়ের ওপর..."
+                        </p>
+                        <div class="mt-auto flex items-center gap-3 text-xs font-bold text-gray-400">
+                            <span>⏱️ ৭ মিনিট পড়া</span>
+                            <span>•</span>
+                            <span>৮.৯k ভিউ</span>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+            
+            <div class="mt-8 text-center md:hidden">
+                <a href="#" class="inline-block bg-white border border-gray-200 text-blue-600 font-bold py-3 px-8 rounded-xl shadow-sm">সবগুলো আর্টিকেল দেখুন</a>
+            </div>
         </div>
 
         <div class="bg-blue-900 rounded-3xl p-10 shadow-xl my-16 text-center relative overflow-hidden">

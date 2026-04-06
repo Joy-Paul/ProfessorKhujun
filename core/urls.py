@@ -36,6 +36,7 @@ urlpatterns = [
     path('donate/success/', views.payment_success, name='payment_success'),
     path('deadlines/', views.university_deadlines, name='university_deadlines'),
     path('professor/<int:prof_id>/report/', views.report_professor, name='report_professor'),
+    path('update-status/<int:bookmark_id>/', views.update_application_status, name='update_status'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # urlpatterns এর একদম শেষে এটি যোগ করুন
 if settings.DEBUG:

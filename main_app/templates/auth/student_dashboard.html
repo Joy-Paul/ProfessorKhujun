@@ -18,62 +18,97 @@
 
     <main class="max-w-6xl mx-auto py-12 px-6 flex-grow w-full">
         
-        <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 mb-8 flex justify-between items-center">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-6 bg-green-50 text-green-700 p-4 rounded-xl border border-green-200 font-bold text-center shadow-sm">
+                    ✅ {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 mb-8 flex flex-col md:flex-row justify-between items-center gap-6">
             <div>
-                <h2 class="text-3xl font-black text-gray-800 mb-1">হ্যালো, {{ user.username }} 👋</h2>
-                <p class="text-gray-500 font-medium text-sm">আপনার সেভ করা মেন্টরদের তালিকা নিচে দেওয়া হলো।</p>
+                <h2 class="text-3xl font-black text-gray-800 mb-2">হ্যালো, {{ user.username }} 👋</h2>
+                <p class="text-gray-500 font-medium text-sm">আপনার সেভ করা প্রফেসরদের স্ট্যাটাস ট্র্যাক করুন (Application Tracker 📊)</p>
             </div>
-            <div class="bg-blue-50 px-6 py-3 rounded-2xl border border-blue-100 text-center">
-                <span class="block text-2xl font-black text-blue-600">{{ saved_profs.count }}</span>
+            <div class="bg-blue-50 px-8 py-4 rounded-2xl border border-blue-100 text-center">
+                <span class="block text-3xl font-black text-blue-600">{{ saved_profs.count }}</span>
                 <span class="text-xs font-bold text-blue-800 uppercase tracking-wider">Saved Profiles</span>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for item in saved_profs %}
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:border-blue-200 transition-all duration-300 group flex flex-col h-full relative">
-                
-                <form action="{% url 'toggle_bookmark' item.professor.id %}" method="POST" class="absolute top-4 right-4 z-10">
-                    {% csrf_token %}
-                    <button type="submit" title="Remove Bookmark" class="w-8 h-8 bg-blue-50 text-blue-600 hover:bg-red-50 hover:text-red-600 rounded-full flex items-center justify-center transition border border-transparent hover:border-red-100">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v14l-7-3.5L3 18V4z" clip-rule="evenodd" />
-                        </svg>
-                    </button>
-                </form>
-
-                <div class="flex items-center gap-5 mb-6">
-                    <div class="shrink-0">
-                        {% if item.professor.image %}
-                            <img src="{{ item.professor.image.url }}" class="w-16 h-16 rounded-full object-cover border-2 border-blue-50">
-                        {% else %}
-                            <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 text-2xl font-black border-2 border-blue-100">
-                                {{ item.professor.name|slice:":1" }}
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[800px]">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-100 text-gray-500 text-sm tracking-wider uppercase">
+                        <th class="p-5 font-bold w-2/5">Professor Info</th>
+                        <th class="p-5 font-bold w-1/5">University</th>
+                        <th class="p-5 font-bold text-center w-1/5">Application Status</th>
+                        <th class="p-5 font-bold text-center w-1/5">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for item in saved_profs %}
+                    <tr class="hover:bg-gray-50 transition duration-200 group">
+                        <td class="p-5">
+                            <div class="flex items-center gap-4">
+                                {% if item.professor.image %}
+                                    <img src="{{ item.professor.image.url }}" class="w-12 h-12 rounded-full object-cover border border-gray-200 shadow-sm">
+                                {% else %}
+                                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-lg border border-blue-200 shadow-sm">
+                                        {{ item.professor.name|slice:":1" }}
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <a href="{% url 'professor_detail' item.professor.id %}" class="font-bold text-gray-800 hover:text-blue-600 text-lg transition">{{ item.professor.name }}</a>
+                                    <p class="text-xs text-gray-500 mt-0.5">{{ item.professor.department }}</p>
+                                </div>
                             </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div>
-                        <h4 class="text-lg font-black text-gray-800 group-hover:text-blue-600 transition">{{ item.professor.name }}</h4>
-                        <p class="text-xs text-yellow-600 font-bold mb-1">⭐ {{ item.professor.average_rating }} Rating</p>
-                        <p class="text-xs text-gray-500 font-medium truncate w-40">{{ item.professor.university.name }}</p>
-                    </div>
-                </div>
-
-                <a href="{% url 'professor_detail' item.professor.id %}" class="mt-auto block w-full text-center bg-gray-50 hover:bg-blue-600 text-gray-700 hover:text-white font-bold py-3 rounded-xl transition text-sm border border-gray-200 hover:border-blue-600">
-                    প্রোফাইল দেখুন
-                </a>
-            </div>
-            {% empty %}
-                <div class="col-span-full bg-white p-12 rounded-3xl border border-gray-100 text-center shadow-sm">
-                    <div class="text-6xl mb-4">🔖</div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2">আপনি এখনো কাউকে সেভ করেননি</h3>
-                    <p class="text-gray-500 text-sm mb-6 max-w-md mx-auto">হোমপেজ থেকে প্রফেসরদের প্রোফাইল ঘুরে দেখুন এবং আপনার পছন্দের মেন্টরদের সেভ করে রাখুন।</p>
-                    <a href="/" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition shadow-md shadow-blue-200">
-                        প্রফেসর খুঁজুন
-                    </a>
-                </div>
-            {% endfor %}
+                        </td>
+                        <td class="p-5">
+                            <p class="text-sm font-bold text-gray-700 truncate max-w-[200px]">{{ item.professor.university.name }}</p>
+                            <p class="text-xs text-gray-400 mt-0.5">{{ item.professor.university.country }}</p>
+                        </td>
+                        <td class="p-5 text-center">
+                            <form action="{% url 'update_status' item.id %}" method="POST" class="inline-block">
+                                {% csrf_token %}
+                                <select name="status" onchange="this.form.submit()" class="p-2.5 rounded-lg text-sm font-bold border outline-none cursor-pointer transition-colors shadow-sm
+                                    {% if item.status == 'saved' %} bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100
+                                    {% elif item.status == 'emailed' %} bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100
+                                    {% elif item.status == 'interview' %} bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100
+                                    {% elif item.status == 'accepted' %} bg-green-50 text-green-700 border-green-200 hover:bg-green-100
+                                    {% elif item.status == 'rejected' %} bg-red-50 text-red-700 border-red-200 hover:bg-red-100 {% endif %}">
+                                    <option value="saved" {% if item.status == 'saved' %}selected{% endif %}>📌 To Review</option>
+                                    <option value="emailed" {% if item.status == 'emailed' %}selected{% endif %}>✉️ Email Sent</option>
+                                    <option value="interview" {% if item.status == 'interview' %}selected{% endif %}>💬 Interviewing</option>
+                                    <option value="accepted" {% if item.status == 'accepted' %}selected{% endif %}>🎉 Accepted</option>
+                                    <option value="rejected" {% if item.status == 'rejected' %}selected{% endif %}>🚫 Rejected</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td class="p-5 text-center">
+                            <form action="{% url 'toggle_bookmark' item.professor.id %}" method="POST" class="inline-block">
+                                {% csrf_token %}
+                                <button type="submit" class="text-red-500 hover:text-white bg-red-50 hover:bg-red-500 font-bold text-xs px-4 py-2 rounded-lg transition border border-red-100 hover:border-red-500 shadow-sm">
+                                    Remove
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="p-16 text-center text-gray-400">
+                            <div class="text-6xl mb-4">📂</div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">আপনি এখনো কোনো প্রফেসরকে সেভ করেননি</h3>
+                            <p class="text-gray-500 text-sm mb-8 max-w-md mx-auto">হোমপেজ থেকে প্রফেসরদের প্রোফাইল ঘুরে দেখুন এবং আপনার পছন্দের মেন্টরদের সেভ করে রাখুন।</p>
+                            <a href="/" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition shadow-md">
+                                প্রফেসর খুঁজুন
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
 
     </main>

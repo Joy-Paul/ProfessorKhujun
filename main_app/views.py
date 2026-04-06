@@ -56,43 +56,6 @@ def home(request):
 # ==========================================
 # ২. প্রফেসর ডিটেইল ভিউ
 # ==========================================
-# def professor_detail(request, pk):
-#     professor = get_object_or_404(Professor, pk=pk, is_verified=True)
-#     reviews = professor.reviews.all().order_by('-created_at')
-    
-#     # স্লাইডারের জন্য কিছু টপ/ভেরিফাইড প্রফেসরদের লিস্ট পাঠানো হলো
-#     # top_professors = Professor.objects.filter(is_verified=True).exclude(id=pk).order_by('-id')[:10]
-#     # Sudhu bhalo review (4 ba 5 star) gulo slider-er jonno ana holo
-#     top_reviews = professor.reviews.filter(rating__gte=4).order_by('-rating', '-created_at')[:10]
-
-#     # --- নতুন লজিক: বুকমার্ক চেক করা ---
-#     is_bookmarked = False
-#     if request.user.is_authenticated:
-#         is_bookmarked = Bookmark.objects.filter(user=request.user, professor=professor).exists()
-#     # -----------------------------------
-    
-#     if request.method == 'POST':
-#         if not request.user.is_authenticated:
-#             return redirect('login')
-            
-#         student = getattr(request.user, 'student_profile', None)
-#         if student and student.is_verified:
-#             rating = request.POST.get('rating')
-#             comment = request.POST.get('comment')
-#             Review.objects.create(professor=professor, user=request.user, rating=rating, comment=comment)
-#             messages.success(request, "আপনার রিভিউ সফলভাবে সাবমিট হয়েছে!")
-#         else:
-#             messages.error(request, "রিভিউ দেওয়ার জন্য আপনার স্টুডেন্ট আইডি অ্যাডমিন দ্বারা ভেরিফাইড হতে হবে।")
-#         return redirect('professor_detail', pk=pk)
-
-#     return render(request, 'professor_detail.html', {
-#         'professor': professor,
-#         'reviews': reviews,
-#         'top_reviews': top_reviews,  # Eta slider-e pathano holo
-#         'is_bookmarked': is_bookmarked  # <-- এটি টেমপ্লেটে পাঠানো হলো
-#     })
-
-
 def professor_detail(request, pk):
     professor = get_object_or_404(Professor, pk=pk, is_verified=True)
     reviews = professor.reviews.all().order_by('-created_at')
@@ -268,6 +231,17 @@ def student_dashboard(request):
     # স্টুডেন্টের সেভ করা সব প্রফেসরদের লিস্ট আনা
     saved_profs = Bookmark.objects.filter(user=request.user).select_related('professor')
     return render(request, 'auth/student_dashboard.html', {'saved_profs': saved_profs})
+
+@login_required
+def update_application_status(request, bookmark_id):
+    if request.method == 'POST':
+        bookmark = get_object_or_404(Bookmark, id=bookmark_id, user=request.user)
+        new_status = request.POST.get('status')
+        if new_status:
+            bookmark.status = new_status
+            bookmark.save()
+            messages.success(request, f"{bookmark.professor.name}-এর স্ট্যাটাস আপডেট করা হয়েছে!")
+    return redirect('student_dashboard')
 
 # ==========================================
 # Stripe API Key সেট করা (এই লাইনটি যোগ করুন)

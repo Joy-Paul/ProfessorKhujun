@@ -111,15 +111,22 @@ class ProfileClaimRequest(models.Model):
         return f"{self.user.username} claims {self.professor.name}"
     
 
-
 class Bookmark(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookmarks')
-    professor = models.ForeignKey(Professor, on_delete=models.CASCADE, related_name='bookmarked_by')
+    STATUS_CHOICES = [
+        ('saved', 'To Review (দেখতে হবে)'),
+        ('emailed', 'Email Sent (ইমেইল পাঠিয়েছি)'),
+        ('interview', 'Interviewing (ইন্টারভিউ চলছে)'),
+        ('accepted', 'Accepted (অ্যাকসেপ্টেড)'),
+        ('rejected', 'Rejected (রিজেক্টেড)'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    professor = models.ForeignKey('Professor', on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='saved') # নতুন ফিল্ড
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        # একই ইউজার যেন একই প্রফেসরকে দুইবার বুকমার্ক না করতে পারে
-        unique_together = ('user', 'professor')
+        unique_together = ('user', 'professor') # একজন ইউজার এক প্রফেসরকে একবারই সেভ করতে পারবে
 
     def __str__(self):
         return f"{self.user.username} saved {self.professor.name}"

@@ -58,7 +58,7 @@
             </div>
 
             <div class="flex-grow pt-2">
-                <div class="flex items-center gap-4 mb-1">
+                <div class="flex items-center gap-4 mb-2">
                     <h1 class="text-4xl font-black text-gray-800">{{ professor.name }}</h1>
                     
                     <form action="{% url 'toggle_bookmark' professor.id %}" method="POST" class="m-0">
@@ -70,9 +70,15 @@
                             </svg>
                         </button>
                     </form>
-                    <button onclick="document.getElementById('reportModal').classList.remove('hidden')" class="text-xs text-red-500 font-bold hover:underline flex items-center gap-1 mt-4">
-    🚩 Report incorrect info
-</button>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-4 mb-4">
+                    <button onclick="document.getElementById('emailModal').classList.remove('hidden')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-3 py-1.5 rounded-lg transition border border-indigo-200 flex items-center gap-1.5 shadow-sm">
+                        ✨ Generate Cold Email
+                    </button>
+                    <button onclick="document.getElementById('reportModal').classList.remove('hidden')" class="text-xs text-red-500 font-bold hover:underline flex items-center gap-1">
+                        🚩 Report incorrect info
+                    </button>
                 </div>
                 
                 <p class="text-lg text-blue-600 font-bold mb-1">{{ professor.designation|default:"Professor" }}</p>
@@ -97,6 +103,21 @@
                     </a>
                     {% endif %}
                 </div>
+
+                <div class="mt-8 pt-6 border-t border-gray-100">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">🔗 প্রোফাইলটি বন্ধুদের সাথে শেয়ার করুন</p>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="navigator.clipboard.writeText(window.location.href); alert('লিংক কপি হয়েছে!');" class="flex-1 min-w-[140px] flex justify-center items-center gap-2 p-2.5 bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold text-sm rounded-xl transition border border-gray-200 shadow-sm">
+                            📋 Copy Link
+                        </button>
+                        <a href="https://api.whatsapp.com/send?text=Hey, check out this Professor's profile for PhD/MSc supervision: {{ request.build_absolute_uri }}" target="_blank" class="flex-1 min-w-[140px] flex justify-center items-center gap-2 p-2.5 bg-green-50 hover:bg-green-100 text-green-700 font-bold text-sm rounded-xl transition border border-green-200 shadow-sm">
+                            💬 WhatsApp
+                        </a>
+                        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" target="_blank" class="flex-1 min-w-[140px] flex justify-center items-center gap-2 p-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-sm rounded-xl transition border border-blue-200 shadow-sm">
+                            💼 LinkedIn
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -114,7 +135,7 @@
                             <p class="leading-relaxed">{{ professor.publications|linebreaksbr }}</p>
                         </ul>
                     {% else %}
-                        <p class="text-sm text-gray-400 italic">এখনো কোনো পাবলিকেশন যুক্ত করা হয়নি।</p>
+                        <p class="text-sm text-gray-400 italic">এখনো কোনো পাবলিকেশন যুক্ত করা হয়নি.</p>
                     {% endif %}
                 </div>
             </div>
@@ -133,9 +154,8 @@
                         <p class="text-sm text-gray-400 italic">ল্যাবের কোনো তথ্য পাওয়া যায়নি।</p>
                     {% endif %}
                 </div>
-            </div>
 
-            <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
                     <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
                         <span class="text-2xl">🏛️</span> Admissions Deadline
                     </h2>
@@ -193,6 +213,7 @@
                         </div>
                     </div>
                 </div>
+            </div>
         </div>
 
         <div id="reviews" class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 scroll-mt-24">
@@ -208,7 +229,13 @@
 
             <div class="mb-10 bg-gray-50 p-6 rounded-2xl border border-gray-200">
                 {% if user.is_authenticated %}
-                    {% if user.student_profile.is_verified %}
+                    {% if has_reviewed %}
+                        <div class="text-center py-4">
+                            <span class="text-4xl mb-2 block">✅</span>
+                            <h4 class="font-bold text-gray-800">ধন্যবাদ!</h4>
+                            <p class="text-sm text-gray-500">আপনি ইতিমধ্যে এই প্রফেসরের প্রোফাইলে আপনার রিভিউ দিয়েছেন।</p>
+                        </div>
+                    {% elif user.student_profile.is_verified %}
                         <h4 class="font-bold text-gray-800 mb-4">আপনার মতামত দিন</h4>
                         <form method="POST" class="space-y-4">
                             {% csrf_token %}
@@ -223,24 +250,6 @@
                             <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition shadow-md">রিভিউ সাবমিট করুন</button>
                         </form>
                     {% else %}
-                        <p class="text-sm text-yellow-700 font-bold text-center">আপনার স্টুডেন্ট আইডিটি এখনো ভেরিফাইড হয়নি। ভেরিফাইড হলে আপনি রিভিউ দিতে পারবেন।</p>
-                    {% endif %}
-                {% else %}
-                    <p class="text-sm text-blue-700 font-bold text-center">রিভিউ দিতে হলে আপনাকে <a href="{% url 'login' %}" class="underline">লগইন</a> করতে হবে।</p>
-                {% endif %}
-            </div>
-
-            <div class="mb-10 bg-gray-50 p-6 rounded-2xl border border-gray-200">
-                {% if user.is_authenticated %}
-                    {% if has_reviewed %}
-                        <div class="text-center py-4">
-                            <span class="text-4xl mb-2 block">✅</span>
-                            <h4 class="font-bold text-gray-800">ধন্যবাদ!</h4>
-                            <p class="text-sm text-gray-500">আপনি ইতিমধ্যে এই প্রফেসরের প্রোফাইলে আপনার রিভিউ দিয়েছেন।</p>
-                        </div>
-                    {% elif user.student_profile.is_verified %}
-                        <h4 class="font-bold text-gray-800 mb-4">আপনার মতামত দিন</h4>
-                        {% else %}
                         <p class="text-sm text-yellow-700 font-bold text-center">আপনার স্টুডেন্ট আইডিটি এখনো ভেরিফাইড হয়নি। ভেরিফাইড হলে আপনি রিভিউ দিতে পারবেন।</p>
                     {% endif %}
                 {% else %}
@@ -326,39 +335,84 @@
         </div>
         {% endif %}
 
+        <div id="emailModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full p-8 relative max-h-[90vh] overflow-y-auto">
+                <button onclick="document.getElementById('emailModal').classList.add('hidden')" class="absolute top-5 right-5 text-gray-400 hover:text-red-500 transition bg-gray-50 hover:bg-red-50 p-2 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
 
-<div id="reportModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 relative">
-        <button onclick="document.getElementById('reportModal').classList.add('hidden')" class="absolute top-5 right-5 text-gray-400 hover:text-red-500 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-        </button>
+                <h3 class="text-2xl font-black text-gray-800 mb-2 flex items-center gap-2">✨ Cold Email Draft</h3>
+                <p class="text-sm text-gray-500 mb-6">নিচের ডামি টেক্সটটি কপি করে আপনার নিজের মতো ব্র্যাকেটের অংশগুলো [ ] পরিবর্তন করে নিন।</p>
+                
+                <div class="relative">
+                    <textarea id="generatedEmail" rows="12" class="w-full p-5 bg-indigo-50/50 rounded-2xl border border-indigo-100 outline-none text-sm text-gray-700 font-mono leading-relaxed resize-none" readonly>
+Subject: Prospective Ph.D. Student Interested in Your Research
 
-        <h3 class="text-2xl font-black text-gray-800 mb-2 flex items-center gap-2">🚩 Report Issue</h3>
-        <p class="text-sm text-gray-500 mb-6">এই প্রোফাইলে কোনো ভুল তথ্য থাকলে আমাদের জানান।</p>
-        
-        <form action="{% url 'report_professor' professor.id %}" method="POST" class="space-y-4">
-            {% csrf_token %}
-            <div>
-                <label class="block text-sm font-bold text-gray-600 mb-2">সমস্যার ধরন</label>
-                <select name="issue_type" required class="w-full p-3 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-red-400 text-sm">
-                    <option value="wrong_email">ভুল ইমেইল অ্যাড্রেস</option>
-                    <option value="wrong_deadline">ভুল ডেডলাইন</option>
-                    <option value="left_uni">ইউনিভার্সিটি ছেড়ে দিয়েছেন</option>
-                    <option value="spam">ফেক প্রোফাইল বা স্প্যাম</option>
-                    <option value="other">অন্যান্য সমস্যা</option>
-                </select>
+Dear Dr. {{ professor.name|title }},
+
+I hope this email finds you well. My name is [Your Name], and I recently graduated with a degree in [Your Subject] from [Your University]. I am writing to express my profound interest in joining your research group at {{ professor.university.name }} for the upcoming Fall semester.
+
+I have been following your recent publications, particularly your work regarding {{ professor.research_area|truncatewords:10|default:"your specific research topic" }}. Your approach aligns perfectly with my academic background and my long-term research goals.
+
+During my undergraduate studies, I worked on [Mention 1-2 relevant projects/skills]. I have attached my CV and transcripts for your review. I would highly appreciate it if we could schedule a brief meeting to discuss potential Ph.D. opportunities in your lab.
+
+Thank you for your time and consideration.
+
+Sincerely,
+[Your Name]
+[Your Phone/Email]
+[Link to Portfolio/LinkedIn]
+                    </textarea>
+                    
+                    <button onclick="copyEmailText()" class="absolute top-4 right-4 bg-white hover:bg-gray-50 text-indigo-600 font-bold text-xs px-3 py-1.5 rounded-lg border border-indigo-200 shadow-sm transition flex items-center gap-1">
+                        📋 Copy Text
+                    </button>
+                </div>
             </div>
-            <div>
-                <label class="block text-sm font-bold text-gray-600 mb-2">বিস্তারিত (ঐচ্ছিক)</label>
-                <textarea name="description" rows="3" class="w-full p-3 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-red-400 text-sm resize-none" placeholder="সঠিক তথ্য জানা থাকলে এখানে লিখুন..."></textarea>
+        </div>
+
+        <div id="reportModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 relative">
+                <button onclick="document.getElementById('reportModal').classList.add('hidden')" class="absolute top-5 right-5 text-gray-400 hover:text-red-500 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+
+                <h3 class="text-2xl font-black text-gray-800 mb-2 flex items-center gap-2">🚩 Report Issue</h3>
+                <p class="text-sm text-gray-500 mb-6">এই প্রোফাইলে কোনো ভুল তথ্য থাকলে আমাদের জানান।</p>
+                
+                <form action="{% url 'report_professor' professor.id %}" method="POST" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-sm font-bold text-gray-600 mb-2">সমস্যার ধরন</label>
+                        <select name="issue_type" required class="w-full p-3 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-red-400 text-sm">
+                            <option value="wrong_email">ভুল ইমেইল অ্যাড্রেস</option>
+                            <option value="wrong_deadline">ভুল ডেডলাইন</option>
+                            <option value="left_uni">ইউনিভার্সিটি ছেড়ে দিয়েছেন</option>
+                            <option value="spam">ফেক প্রোফাইল বা স্প্যাম</option>
+                            <option value="other">অন্যান্য সমস্যা</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-600 mb-2">বিস্তারিত (ঐচ্ছিক)</label>
+                        <textarea name="description" rows="3" class="w-full p-3 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-red-400 text-sm resize-none" placeholder="সঠিক তথ্য জানা থাকলে এখানে লিখুন..."></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl transition shadow-md">
+                        রিপোর্ট সাবমিট করুন
+                    </button>
+                </form>
             </div>
-            <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl transition shadow-md">
-                রিপোর্ট সাবমিট করুন
-            </button>
-        </form>
-    </div>
-</div>
+        </div>
 
     </main>
+
+    <script>
+        function copyEmailText() {
+            var copyText = document.getElementById("generatedEmail");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); // For mobile devices
+            navigator.clipboard.writeText(copyText.value);
+            alert("ইমেইল ড্রাফট কপি করা হয়েছে! এখন নিজের মতো এডিট করে সেন্ড করুন।");
+        }
+    </script>
 </body>
 </html>
