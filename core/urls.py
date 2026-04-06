@@ -34,6 +34,7 @@ urlpatterns = [
     path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
     path('donate/checkout/', views.create_checkout_session, name='checkout_session'),
     path('donate/success/', views.payment_success, name='payment_success'),
+    path('deadlines/', views.university_deadlines, name='university_deadlines'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # urlpatterns এর একদম শেষে এটি যোগ করুন
 if settings.DEBUG:

@@ -310,3 +310,17 @@ def payment_success(request):
 
     messages.success(request, "আপনার অনুদানের জন্য অসংখ্য ধন্যবাদ! আপনাকে একটি কনফার্মেশন ইমেইল পাঠানো হয়েছে।")
     return redirect('home')
+
+def university_deadlines(request):
+    query = request.GET.get('q', '')
+    # সব ইউনিভার্সিটি আনা হচ্ছে এবং নামের ক্রমানুসারে (A-Z) সাজানো হচ্ছে
+    universities = University.objects.all().order_by('name')
+    
+    if query:
+        # যদি ইউজার কিছু লিখে সার্চ করে, তবে নামের সাথে মিলিয়ে ফিল্টার করবে
+        universities = universities.filter(name__icontains=query)
+        
+    return render(request, 'university_deadlines.html', {
+        'universities': universities,
+        'query': query
+    })

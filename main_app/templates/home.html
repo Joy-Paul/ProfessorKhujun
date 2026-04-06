@@ -445,7 +445,9 @@
                 <a href="{% url 'login' %}" class="text-blue-600 font-bold hover:text-blue-800 transition text-sm">লগইন</a>
                 <a href="{% url 'signup' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-bold transition shadow-md shadow-blue-200 text-sm">সাইন আপ</a>
             {% endif %}
-
+<a href="{% url 'university_deadlines' %}" class="hidden md:flex items-center gap-1 text-gray-600 hover:text-blue-600 font-bold text-sm transition">
+    📅 ডেডলাইন ট্র্যাকার
+</a>
             <button onclick="document.getElementById('donateModal').classList.remove('hidden')" class="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 px-4 py-2 rounded-xl font-bold text-sm transition shadow-sm">
                 <span>🎁</span> সাপোর্ট করুন
             </button>

@@ -5,10 +5,36 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models import Avg  # গড় রেটিং হিসাব করার জন্য
+from django.utils.timezone import now # এই লাইনটি একদম ওপরে ইম্পোর্ট করবেন
 
 class University(models.Model):
     name = models.CharField(max_length=255)
     country = models.CharField(max_length=100)
+
+    # --- নতুন ডেডলাইন ফিল্ড ---
+    domestic_deadline = models.CharField(max_length=255, blank=True, null=True, help_text="Example: Fall - Dec 15, Spring - Oct 1")
+    international_deadline = models.CharField(max_length=255, blank=True, null=True, help_text="Example: Fall - Dec 1, Spring - Sep 15")
+    
+    # --- নতুন: কাউন্টডাউনের জন্য সঠিক তারিখ ---
+    intl_deadline_date = models.DateField(blank=True, null=True, help_text="ইন্টারন্যাশনাল ডেডলাইনের সঠিক তারিখ দিন")
+    domestic_deadline_date = models.DateField(blank=True, null=True, help_text="ডোমেস্টিক ডেডলাইনের সঠিক তারিখ দিন")
+
+    # অটোমেটিক দিন হিসাব করার লজিক (International)
+    @property
+    def intl_days_left(self):
+        if self.intl_deadline_date:
+            delta = self.intl_deadline_date - now().date()
+            return delta.days
+        return None
+
+    # অটোমেটিক দিন হিসাব করার লজিক (Domestic)
+    @property
+    def domestic_days_left(self):
+        if self.domestic_deadline_date:
+            delta = self.domestic_deadline_date - now().date()
+            return delta.days
+        return None
+
     def __str__(self): return self.name
 
 class Professor(models.Model):

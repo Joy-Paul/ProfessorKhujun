@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>University Application Deadlines | Professorkhujun</title>
+</head>
+<body class="bg-slate-50 font-sans min-h-screen flex flex-col">
+
+    <nav class="bg-white border-b border-gray-100 py-4 px-6 flex justify-between items-center sticky top-0 z-50 shadow-sm">
+        <a href="/" class="text-2xl font-black text-blue-900 tracking-tight">Professorkhujun<span class="text-yellow-500">.com</span></a>
+        <div class="flex items-center gap-4">
+            <a href="/" class="text-blue-600 font-bold text-sm hover:underline">হোমপেজে ফিরে যান</a>
+        </div>
+    </nav>
+
+    <header class="bg-blue-900 text-white py-12 px-6">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-4xl font-black mb-3">Admission Deadlines Tracker ⏳</h1>
+            <p class="text-blue-200 mb-8 font-medium">বিশ্বের বিভিন্ন ইউনিভার্সিটির Fall এবং Spring সেমিস্টারের ডেডলাইন জানুন এবং ট্র্যাক করুন।</p>
+            
+            <form method="GET" class="relative flex items-center max-w-2xl mx-auto shadow-xl">
+                <input type="text" name="q" value="{{ query }}" 
+                       placeholder="ইউনিভার্সিটির নাম লিখে খুঁজুন..." 
+                       class="w-full p-4 rounded-xl text-gray-800 outline-none focus:ring-4 focus:ring-yellow-400 text-lg border-none shadow-sm">
+                <button type="submit" class="absolute right-2 bg-yellow-500 hover:bg-yellow-400 text-blue-900 font-bold py-2 px-6 rounded-lg transition">
+                    Search
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto py-12 px-6 flex-grow w-full">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for uni in universities %}
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition group">
+                <h3 class="text-xl font-black text-gray-800 mb-1 group-hover:text-blue-600 transition">{{ uni.name }}</h3>
+                <p class="text-sm text-gray-500 font-medium mb-6 flex items-center gap-1">📍 {{ uni.country }}</p>
+                
+                <div class="space-y-4">
+                    <div class="p-4 bg-blue-50/50 border border-blue-100 rounded-xl relative">
+                        <p class="text-xs text-blue-600 font-bold uppercase tracking-wider mb-1 flex items-center gap-1">🌍 International</p>
+                        <p class="text-sm font-bold text-gray-800 mb-2">{{ uni.international_deadline|default:"Not Available" }}</p>
+                        
+                        {% if uni.intl_deadline_date %}
+                            {% if uni.intl_days_left < 0 %}
+                                <span class="inline-block bg-red-100 text-red-600 text-[10px] font-black uppercase px-2 py-1 rounded border border-red-200">🚫 Closed</span>
+                            {% elif uni.intl_days_left == 0 %}
+                                <span class="inline-block bg-orange-100 text-orange-600 text-[10px] font-black uppercase px-2 py-1 rounded border border-orange-200 animate-pulse">⚠️ Ends Today</span>
+                            {% else %}
+                                <span class="inline-block bg-green-100 text-green-700 text-[10px] font-black uppercase px-2 py-1 rounded border border-green-200">⏳ {{ uni.intl_days_left }} Days Left</span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl relative">
+                        <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1 flex items-center gap-1">🏠 Domestic</p>
+                        <p class="text-sm font-bold text-gray-800 mb-2">{{ uni.domestic_deadline|default:"Not Available" }}</p>
+
+                        {% if uni.domestic_deadline_date %}
+                            {% if uni.domestic_days_left < 0 %}
+                                <span class="inline-block bg-red-100 text-red-600 text-[10px] font-black uppercase px-2 py-1 rounded border border-red-200">🚫 Closed</span>
+                            {% elif uni.domestic_days_left == 0 %}
+                                <span class="inline-block bg-orange-100 text-orange-600 text-[10px] font-black uppercase px-2 py-1 rounded border border-orange-200 animate-pulse">⚠️ Ends Today</span>
+                            {% else %}
+                                <span class="inline-block bg-green-100 text-green-700 text-[10px] font-black uppercase px-2 py-1 rounded border border-green-200">⏳ {{ uni.domestic_days_left }} Days Left</span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="mt-6 pt-4 border-t border-gray-100 text-center">
+                    <a href="/?university={{ uni.id }}" class="text-sm font-bold text-blue-600 hover:text-blue-800 transition flex items-center justify-center gap-1">
+                        এই ইউনিভার্সিটির প্রফেসরদের দেখুন <span>→</span>
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-20 bg-white rounded-3xl border-2 border-dashed border-gray-200">
+                <div class="text-5xl mb-4">🔍</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">কোনো ইউনিভার্সিটি পাওয়া যায়নি</h3>
+                <p class="text-gray-500">অনুগ্রহ করে নামের বানান ঠিক আছে কিনা চেক করুন।</p>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+</body>
+</html>
