@@ -70,6 +70,9 @@
                             </svg>
                         </button>
                     </form>
+                    <button onclick="document.getElementById('reportModal').classList.remove('hidden')" class="text-xs text-red-500 font-bold hover:underline flex items-center gap-1 mt-4">
+    🚩 Report incorrect info
+</button>
                 </div>
                 
                 <p class="text-lg text-blue-600 font-bold mb-1">{{ professor.designation|default:"Professor" }}</p>
@@ -131,40 +134,6 @@
                     {% endif %}
                 </div>
             </div>
-
-            <!-- <div class="space-y-8">
-                
-                <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <span class="text-2xl">🏛️</span> Admissions Deadline
-                    </h2>
-                    <h3 class="font-bold text-blue-700 mb-4">{{ professor.university.name }}</h3>
-                    
-                    <div class="space-y-3">
-                        <div class="p-4 bg-blue-50 border border-blue-100 rounded-xl">
-                            <p class="text-xs text-blue-600 font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
-                                🌍 International 
-                            </p>
-                            <p class="text-sm font-bold text-gray-800 whitespace-pre-line">
-                                {{ professor.university.international_deadline|default:"এখনো আপডেট করা হয়নি" }}
-                            </p>
-                        </div>
-                        
-                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl">
-                            <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
-                                🏠 Domestic
-                            </p>
-                            <p class="text-sm font-bold text-gray-800 whitespace-pre-line">
-                                {{ professor.university.domestic_deadline|default:"এখনো আপডেট করা হয়নি" }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                    </div>
-                
-            </div> -->
 
             <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
                     <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
@@ -261,6 +230,24 @@
                 {% endif %}
             </div>
 
+            <div class="mb-10 bg-gray-50 p-6 rounded-2xl border border-gray-200">
+                {% if user.is_authenticated %}
+                    {% if has_reviewed %}
+                        <div class="text-center py-4">
+                            <span class="text-4xl mb-2 block">✅</span>
+                            <h4 class="font-bold text-gray-800">ধন্যবাদ!</h4>
+                            <p class="text-sm text-gray-500">আপনি ইতিমধ্যে এই প্রফেসরের প্রোফাইলে আপনার রিভিউ দিয়েছেন।</p>
+                        </div>
+                    {% elif user.student_profile.is_verified %}
+                        <h4 class="font-bold text-gray-800 mb-4">আপনার মতামত দিন</h4>
+                        {% else %}
+                        <p class="text-sm text-yellow-700 font-bold text-center">আপনার স্টুডেন্ট আইডিটি এখনো ভেরিফাইড হয়নি। ভেরিফাইড হলে আপনি রিভিউ দিতে পারবেন।</p>
+                    {% endif %}
+                {% else %}
+                    <p class="text-sm text-blue-700 font-bold text-center">রিভিউ দিতে হলে আপনাকে <a href="{% url 'login' %}" class="underline">লগইন</a> করতে হবে।</p>
+                {% endif %}
+            </div>
+
             <div class="space-y-6 max-h-[500px] overflow-y-auto pr-2">
                 {% for review in reviews %}
                 <div class="p-6 rounded-2xl border border-gray-100 bg-white shadow-sm">
@@ -338,6 +325,39 @@
             </div>
         </div>
         {% endif %}
+
+
+<div id="reportModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 relative">
+        <button onclick="document.getElementById('reportModal').classList.add('hidden')" class="absolute top-5 right-5 text-gray-400 hover:text-red-500 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+
+        <h3 class="text-2xl font-black text-gray-800 mb-2 flex items-center gap-2">🚩 Report Issue</h3>
+        <p class="text-sm text-gray-500 mb-6">এই প্রোফাইলে কোনো ভুল তথ্য থাকলে আমাদের জানান।</p>
+        
+        <form action="{% url 'report_professor' professor.id %}" method="POST" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm font-bold text-gray-600 mb-2">সমস্যার ধরন</label>
+                <select name="issue_type" required class="w-full p-3 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-red-400 text-sm">
+                    <option value="wrong_email">ভুল ইমেইল অ্যাড্রেস</option>
+                    <option value="wrong_deadline">ভুল ডেডলাইন</option>
+                    <option value="left_uni">ইউনিভার্সিটি ছেড়ে দিয়েছেন</option>
+                    <option value="spam">ফেক প্রোফাইল বা স্প্যাম</option>
+                    <option value="other">অন্যান্য সমস্যা</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-600 mb-2">বিস্তারিত (ঐচ্ছিক)</label>
+                <textarea name="description" rows="3" class="w-full p-3 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-red-400 text-sm resize-none" placeholder="সঠিক তথ্য জানা থাকলে এখানে লিখুন..."></textarea>
+            </div>
+            <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl transition shadow-md">
+                রিপোর্ট সাবমিট করুন
+            </button>
+        </form>
+    </div>
+</div>
 
     </main>
 </body>

@@ -123,3 +123,25 @@ class Bookmark(models.Model):
 
     def __str__(self):
         return f"{self.user.username} saved {self.professor.name}"
+    
+# ==========================================
+# Report Model (For reporting incorrect info)
+# ==========================================
+class Report(models.Model):
+    ISSUE_CHOICES = [
+        ('wrong_email', 'ভুল ইমেইল অ্যাড্রেস'),
+        ('wrong_deadline', 'ভুল ডেডলাইন'),
+        ('left_uni', 'ইউনিভার্সিটি ছেড়ে দিয়েছেন'),
+        ('spam', 'ফেক প্রোফাইল বা স্প্যাম'),
+        ('other', 'অন্যান্য সমস্যা'),
+    ]
+    
+    professor = models.ForeignKey(Professor, on_delete=models.CASCADE, related_name='reports')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    issue_type = models.CharField(max_length=50, choices=ISSUE_CHOICES)
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_resolved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Report on {self.professor.name} - {self.issue_type}"

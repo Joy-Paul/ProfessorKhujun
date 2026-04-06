@@ -56,31 +56,69 @@ def home(request):
 # ==========================================
 # ২. প্রফেসর ডিটেইল ভিউ
 # ==========================================
+# def professor_detail(request, pk):
+#     professor = get_object_or_404(Professor, pk=pk, is_verified=True)
+#     reviews = professor.reviews.all().order_by('-created_at')
+    
+#     # স্লাইডারের জন্য কিছু টপ/ভেরিফাইড প্রফেসরদের লিস্ট পাঠানো হলো
+#     # top_professors = Professor.objects.filter(is_verified=True).exclude(id=pk).order_by('-id')[:10]
+#     # Sudhu bhalo review (4 ba 5 star) gulo slider-er jonno ana holo
+#     top_reviews = professor.reviews.filter(rating__gte=4).order_by('-rating', '-created_at')[:10]
+
+#     # --- নতুন লজিক: বুকমার্ক চেক করা ---
+#     is_bookmarked = False
+#     if request.user.is_authenticated:
+#         is_bookmarked = Bookmark.objects.filter(user=request.user, professor=professor).exists()
+#     # -----------------------------------
+    
+#     if request.method == 'POST':
+#         if not request.user.is_authenticated:
+#             return redirect('login')
+            
+#         student = getattr(request.user, 'student_profile', None)
+#         if student and student.is_verified:
+#             rating = request.POST.get('rating')
+#             comment = request.POST.get('comment')
+#             Review.objects.create(professor=professor, user=request.user, rating=rating, comment=comment)
+#             messages.success(request, "আপনার রিভিউ সফলভাবে সাবমিট হয়েছে!")
+#         else:
+#             messages.error(request, "রিভিউ দেওয়ার জন্য আপনার স্টুডেন্ট আইডি অ্যাডমিন দ্বারা ভেরিফাইড হতে হবে।")
+#         return redirect('professor_detail', pk=pk)
+
+#     return render(request, 'professor_detail.html', {
+#         'professor': professor,
+#         'reviews': reviews,
+#         'top_reviews': top_reviews,  # Eta slider-e pathano holo
+#         'is_bookmarked': is_bookmarked  # <-- এটি টেমপ্লেটে পাঠানো হলো
+#     })
+
+
 def professor_detail(request, pk):
     professor = get_object_or_404(Professor, pk=pk, is_verified=True)
     reviews = professor.reviews.all().order_by('-created_at')
-    
-    # স্লাইডারের জন্য কিছু টপ/ভেরিফাইড প্রফেসরদের লিস্ট পাঠানো হলো
-    # top_professors = Professor.objects.filter(is_verified=True).exclude(id=pk).order_by('-id')[:10]
-    # Sudhu bhalo review (4 ba 5 star) gulo slider-er jonno ana holo
     top_reviews = professor.reviews.filter(rating__gte=4).order_by('-rating', '-created_at')[:10]
-
-    # --- নতুন লজিক: বুকমার্ক চেক করা ---
+    
     is_bookmarked = False
+    has_reviewed = False # নতুন: চেক করবে ইউজার আগে রিভিউ দিয়েছে কি না
+    
     if request.user.is_authenticated:
         is_bookmarked = Bookmark.objects.filter(user=request.user, professor=professor).exists()
-    # -----------------------------------
-    
+        has_reviewed = Review.objects.filter(user=request.user, professor=professor).exists()
+
     if request.method == 'POST':
         if not request.user.is_authenticated:
             return redirect('login')
             
         student = getattr(request.user, 'student_profile', None)
         if student and student.is_verified:
-            rating = request.POST.get('rating')
-            comment = request.POST.get('comment')
-            Review.objects.create(professor=professor, user=request.user, rating=rating, comment=comment)
-            messages.success(request, "আপনার রিভিউ সফলভাবে সাবমিট হয়েছে!")
+            # অ্যান্টি-স্প্যাম লজিক: একটির বেশি রিভিউ দেওয়া যাবে না
+            if has_reviewed:
+                messages.error(request, "আপনি আগে থেকেই এই প্রফেসরের প্রোফাইলে একটি রিভিউ দিয়েছেন।")
+            else:
+                rating = request.POST.get('rating')
+                comment = request.POST.get('comment')
+                Review.objects.create(professor=professor, user=request.user, rating=rating, comment=comment)
+                messages.success(request, "আপনার রিভিউ সফলভাবে সাবমিট হয়েছে!")
         else:
             messages.error(request, "রিভিউ দেওয়ার জন্য আপনার স্টুডেন্ট আইডি অ্যাডমিন দ্বারা ভেরিফাইড হতে হবে।")
         return redirect('professor_detail', pk=pk)
@@ -88,8 +126,9 @@ def professor_detail(request, pk):
     return render(request, 'professor_detail.html', {
         'professor': professor,
         'reviews': reviews,
-        'top_reviews': top_reviews,  # Eta slider-e pathano holo
-        'is_bookmarked': is_bookmarked  # <-- এটি টেমপ্লেটে পাঠানো হলো
+        'top_reviews': top_reviews,
+        'is_bookmarked': is_bookmarked,
+        'has_reviewed': has_reviewed # এটি টেমপ্লেটে পাঠানো হলো
     })
 # ==========================================
 # ৩. সাইনআপ ভিউ
@@ -324,3 +363,20 @@ def university_deadlines(request):
         'universities': universities,
         'query': query
     })
+
+
+def report_professor(request, prof_id):
+    if request.method == 'POST':
+        professor = get_object_or_404(Professor, id=prof_id)
+        issue_type = request.POST.get('issue_type')
+        description = request.POST.get('description')
+        user = request.user if request.user.is_authenticated else None
+        
+        Report.objects.create(
+            professor=professor, 
+            user=user, 
+            issue_type=issue_type, 
+            description=description
+        )
+        messages.success(request, "রিপোর্ট সাবমিট করার জন্য ধন্যবাদ! অ্যাডমিন খুব দ্রুত এটি চেক করে দেখবে।")
+    return redirect('professor_detail', pk=prof_id)
