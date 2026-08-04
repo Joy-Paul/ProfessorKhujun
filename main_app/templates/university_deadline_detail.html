@@ -1,0 +1,447 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <script src="https://cdn.tailwindcss.com"></script> 
+    <title>{{ university.name }} - Deadline Tracker</title> 
+</head> 
+<body class="bg-slate-50 p-4 md:p-8 font-sans"> 
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row gap-8"> 
+        
+        <!-- Sidebar Filters --> 
+        <div class="w-full md:w-1/4 bg-white p-6 rounded-3xl shadow-lg border border-gray-100 h-fit sticky top-8"> 
+            <h3 class="font-black text-xl text-gray-800 mb-6 border-b pb-3">ডেডলাইন ফিল্টার</h3> 
+            
+            <!-- Search Subject --> 
+            <div class="mb-6"> 
+                <label class="font-bold text-sm text-gray-500 mb-2 block uppercase tracking-wider">Subject Search</label> 
+                <input type="text" id="searchInput" onkeyup="filterRows()" placeholder="যেমন: Computer Science..." class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500 transition text-sm"> 
+            </div>
+
+            <!-- Degree Level Filter --> 
+            <div class="mb-6"> 
+                <h4 class="font-bold text-sm text-gray-500 mb-3 block uppercase tracking-wider">Degree Level</h4> 
+                <label class="flex items-center gap-3 mb-3 cursor-pointer group"> 
+                    <input type="checkbox" id="filter-ug" onchange="filterRows()" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"> 
+                    <span class="text-gray-700 font-medium group-hover:text-blue-600 transition">UG (Undergraduate)</span> 
+                </label> 
+                <label class="flex items-center gap-3 mb-3 cursor-pointer group"> 
+                    <input type="checkbox" id="filter-pg" onchange="filterRows()" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"> 
+                    <span class="text-gray-700 font-medium group-hover:text-blue-600 transition">PG (Postgraduate)</span> 
+                </label> 
+            </div>
+
+            <!-- Program Type Filter --> 
+            <div class="mb-6"> 
+                <h4 class="font-bold text-sm text-gray-500 mb-3 block uppercase tracking-wider">Program Type</h4> 
+                <label class="flex items-center gap-3 mb-3 cursor-pointer group"> 
+                    <input type="checkbox" id="filter-cert" onchange="filterRows()" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"> 
+                    <span class="text-gray-700 font-medium group-hover:text-blue-600 transition">Certificate Course</span> 
+                </label> 
+                <label class="flex items-center gap-3 mb-3 cursor-pointer group"> 
+                    <input type="checkbox" id="filter-online" onchange="filterRows()" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"> 
+                    <span class="text-gray-700 font-medium group-hover:text-blue-600 transition">Online Program</span> 
+                </label> 
+                <label class="flex items-center gap-3 mb-3 cursor-pointer group"> 
+                    <input type="checkbox" id="filter-oncampus" onchange="filterRows()" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"> 
+                    <span class="text-gray-700 font-medium group-hover:text-blue-600 transition">On-Campus</span> 
+                </label> 
+            </div>
+
+            <!-- Deadline Type Filter --> 
+            <div class="mb-6"> 
+                <h4 class="font-bold text-sm text-gray-500 mb-3 block uppercase tracking-wider">Deadline Type</h4> 
+                <label class="flex items-center gap-3 mb-3 cursor-pointer group"> 
+                    <input type="checkbox" id="filter-priority" onchange="updateColumns(event)" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"> 
+                    <span class="text-gray-700 font-medium group-hover:text-blue-600 transition">Priority Deadline</span> 
+                </label> 
+                <label class="flex items-center gap-3 mb-3 cursor-pointer group"> 
+                    <input type="checkbox" id="filter-domestic" onchange="toggleDeadlineType('domestic')" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"> 
+                    <span class="text-gray-700 font-medium group-hover:text-blue-600 transition">Domestic Deadline</span> 
+                </label>
+                <label class="flex items-center gap-3 mb-3 cursor-pointer group"> 
+                    <input type="checkbox" id="filter-international" checked onchange="toggleDeadlineType('international')" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"> 
+                    <span class="text-gray-700 font-medium group-hover:text-blue-600 transition">International Deadline</span> 
+                </label> 
+            </div> 
+            
+            <!-- Semester Filter --> 
+            <div> 
+                <h4 class="font-bold text-sm text-gray-500 mb-3 block uppercase tracking-wider">Semester</h4> 
+                <label class="flex items-center gap-3 mb-3 cursor-pointer group"> 
+                    <input type="checkbox" id="semester-fall" onchange="updateColumns(event)" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 semester-checkbox"> 
+                    <span class="text-gray-700 font-medium group-hover:text-blue-600 transition">Fall</span> 
+                </label> 
+                <label class="flex items-center gap-3 mb-3 cursor-pointer group"> 
+                    <input type="checkbox" id="semester-spring" onchange="updateColumns(event)" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 semester-checkbox"> 
+                    <span class="text-gray-700 font-medium group-hover:text-blue-600 transition">Spring</span> 
+                </label> 
+                <label class="flex items-center gap-3 mb-3 cursor-pointer group"> 
+                    <input type="checkbox" id="semester-summer" onchange="updateColumns(event)" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 semester-checkbox"> 
+                    <span class="text-gray-700 font-medium group-hover:text-blue-600 transition">Summer</span> 
+                </label> 
+            </div> 
+        </div> 
+
+        <!-- Main Content Area --> 
+        <div class="w-full md:w-3/4"> 
+            <div class="bg-white p-6 md:p-8 rounded-3xl shadow-lg border border-gray-100"> 
+                
+                <h2 class="text-3xl font-black text-blue-900 mb-8">{{ university.name }}</h2> 
+                
+                <!-- Tab Buttons --> 
+                <div class="flex space-x-2 md:space-x-6 border-b border-gray-200 mb-8 overflow-x-auto pb-2"> 
+                    <button id="tab-btn-phd" onclick="openTab(event, 'phd')" class="tab-btn px-5 py-2.5 text-sm md:text-base font-bold text-blue-600 border-b-2 border-blue-600 whitespace-nowrap">PhD</button> 
+                    <button id="tab-btn-masters" onclick="openTab(event, 'masters')" class="tab-btn px-5 py-2.5 text-sm md:text-base font-bold text-gray-500 hover:text-blue-600 whitespace-nowrap transition">Masters</button> 
+                    <button id="tab-btn-bachelors" onclick="openTab(event, 'bachelors')" class="tab-btn px-5 py-2.5 text-sm md:text-base font-bold text-gray-500 hover:text-blue-600 whitespace-nowrap transition">Bachelors</button> 
+                </div> 
+
+                <!-- ============================ PhD Tab ============================ -->
+                <div id="phd" class="tab-content block"> 
+                    {% if phd_subjects %}
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead>
+                                <tr class="bg-gray-50 text-gray-600 border-b border-t border-gray-200">
+                                    <th class="p-4 font-bold rounded-tl-lg">Subject / Program</th>
+                                    <th class="p-4 font-bold priority-col hidden">Priority Deadline</th>
+                                    <th class="p-4 font-bold fall-col">Fall Deadline</th>
+                                    <th class="p-4 font-bold spring-col">Spring Deadline</th>
+                                    <th class="p-4 font-bold summer-col rounded-tr-lg">Summer Deadline</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 border-b border-gray-200">
+                                {% for subject in phd_subjects %}
+                                <!-- data-certificate attribute যুক্ত করা হয়েছে -->
+                                <tr class="subject-row hover:bg-blue-50/50 transition" data-name="{{ subject.name|lower }}" data-degree="{{ subject.degree_level }}" data-program="{{ subject.program_type }}" data-certificate="{{ subject.is_certificate|yesno:'true,false' }}">
+                                    <td class="p-4 font-bold text-gray-900 text-base">
+                                        {{ subject.name }}
+                                        {% if subject.is_certificate %}
+                                            <span class="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full font-semibold">Certificate</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="p-4 text-orange-600 font-bold priority-col hidden">
+                                        {{ subject.priority_deadline|default:"<span class='text-gray-400 italic font-normal'>-</span>"|safe }}
+                                    </td>
+                                    <td class="p-4 text-red-600 font-bold fall-col">
+                                        <span class="dom-deadline hidden">{{ subject.fall_dom_deadline|default:"<span class='text-gray-400 italic font-normal'>Not Offered</span>"|safe }}</span>
+                                        <span class="intl-deadline">{{ subject.fall_intl_deadline|default:"<span class='text-gray-400 italic font-normal'>Not Offered</span>"|safe }}</span>
+                                    </td>
+                                    <td class="p-4 text-green-600 font-bold spring-col">
+                                        <span class="dom-deadline hidden">{{ subject.spring_dom_deadline|default:"<span class='text-gray-400 italic font-normal'>Not Offered</span>"|safe }}</span>
+                                        <span class="intl-deadline">{{ subject.spring_intl_deadline|default:"<span class='text-gray-400 italic font-normal'>Not Offered</span>"|safe }}</span>
+                                    </td>
+                                    <td class="p-4 text-blue-600 font-bold summer-col">
+                                        <span class="dom-deadline hidden">{{ subject.summer_dom_deadline|default:"<span class='text-gray-400 italic font-normal'>Not Offered</span>"|safe }}</span>
+                                        <span class="intl-deadline">{{ subject.summer_intl_deadline|default:"<span class='text-gray-400 italic font-normal'>Not Offered</span>"|safe }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="py-10 text-center text-gray-500 bg-gray-50 rounded-2xl border border-dashed border-gray-300"> 
+                        <p class="font-medium">No PhD deadlines currently listed.</p> 
+                    </div>
+                    {% endif %}
+                </div> 
+
+                <!-- ============================ Masters Tab ============================ -->
+                <div id="masters" class="tab-content hidden"> 
+                    {% if masters_subjects %}
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead>
+                                <tr class="bg-gray-50 text-gray-600 border-b border-t border-gray-200">
+                                    <th class="p-4 font-bold rounded-tl-lg">Subject / Program</th>
+                                    <th class="p-4 font-bold priority-col hidden">Priority Deadline</th>
+                                    <th class="p-4 font-bold fall-col">Fall Deadline</th>
+                                    <th class="p-4 font-bold spring-col">Spring Deadline</th>
+                                    <th class="p-4 font-bold summer-col rounded-tr-lg">Summer Deadline</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 border-b border-gray-200">
+                                {% for subject in masters_subjects %}
+                                <tr class="subject-row hover:bg-blue-50/50 transition" data-name="{{ subject.name|lower }}" data-degree="{{ subject.degree_level }}" data-program="{{ subject.program_type }}" data-certificate="{{ subject.is_certificate|yesno:'true,false' }}">
+                                    <td class="p-4 font-bold text-gray-900 text-base">
+                                        {{ subject.name }}
+                                        {% if subject.is_certificate %}
+                                            <span class="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full font-semibold">Certificate</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="p-4 text-orange-600 font-bold priority-col hidden">
+                                        {{ subject.priority_deadline|default:"<span class='text-gray-400 italic font-normal'>-</span>"|safe }}
+                                    </td>
+                                    <td class="p-4 text-red-600 font-bold fall-col">
+                                        <span class="dom-deadline hidden">{{ subject.fall_dom_deadline|default:"<span class='text-gray-400 italic font-normal'>Not Offered</span>"|safe }}</span>
+                                        <span class="intl-deadline">{{ subject.fall_intl_deadline|default:"<span class='text-gray-400 italic font-normal'>Not Offered</span>"|safe }}</span>
+                                    </td>
+                                    <td class="p-4 text-green-600 font-bold spring-col">
+                                        <span class="dom-deadline hidden">{{ subject.spring_dom_deadline|default:"<span class='text-gray-400 italic font-normal'>Not Offered</span>"|safe }}</span>
+                                        <span class="intl-deadline">{{ subject.spring_intl_deadline|default:"<span class='text-gray-400 italic font-normal'>Not Offered</span>"|safe }}</span>
+                                    </td>
+                                    <td class="p-4 text-blue-600 font-bold summer-col">
+                                        <span class="dom-deadline hidden">{{ subject.summer_dom_deadline|default:"<span class='text-gray-400 italic font-normal'>Not Offered</span>"|safe }}</span>
+                                        <span class="intl-deadline">{{ subject.summer_intl_deadline|default:"<span class='text-gray-400 italic font-normal'>Not Offered</span>"|safe }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="py-10 text-center text-gray-500 bg-gray-50 rounded-2xl border border-dashed border-gray-300"> 
+                        <p class="font-medium">No Masters deadlines currently listed.</p> 
+                    </div>
+                    {% endif %}
+                </div> 
+
+                <!-- ============================ Bachelors Tab ============================ -->
+                <div id="bachelors" class="tab-content hidden"> 
+                    {% if bachelors_subjects %}
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead>
+                                <tr class="bg-gray-50 text-gray-600 border-b border-t border-gray-200">
+                                    <th class="p-4 font-bold rounded-tl-lg">Subject / Program</th>
+                                    <th class="p-4 font-bold priority-col hidden">Priority Deadline</th>
+                                    <th class="p-4 font-bold fall-col">Fall Deadline</th>
+                                    <th class="p-4 font-bold spring-col">Spring Deadline</th>
+                                    <th class="p-4 font-bold summer-col rounded-tr-lg">Summer Deadline</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 border-b border-gray-200">
+                                {% for subject in bachelors_subjects %}
+                                <tr class="subject-row hover:bg-blue-50/50 transition" data-name="{{ subject.name|lower }}" data-degree="{{ subject.degree_level }}" data-program="{{ subject.program_type }}" data-certificate="{{ subject.is_certificate|yesno:'true,false' }}">
+                                    <td class="p-4 font-bold text-gray-900 text-base">
+                                        {{ subject.name }}
+                                        {% if subject.is_certificate %}
+                                            <span class="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full font-semibold">Certificate</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="p-4 text-orange-600 font-bold priority-col hidden">
+                                        {{ subject.priority_deadline|default:"<span class='text-gray-400 italic font-normal'>-</span>"|safe }}
+                                    </td>
+                                    <td class="p-4 text-red-600 font-bold fall-col">
+                                        <span class="dom-deadline hidden">{{ subject.fall_dom_deadline|default:"<span class='text-gray-400 italic font-normal'>Not Offered</span>"|safe }}</span>
+                                        <span class="intl-deadline">{{ subject.fall_intl_deadline|default:"<span class='text-gray-400 italic font-normal'>Not Offered</span>"|safe }}</span>
+                                    </td>
+                                    <td class="p-4 text-green-600 font-bold spring-col">
+                                        <span class="dom-deadline hidden">{{ subject.spring_dom_deadline|default:"<span class='text-gray-400 italic font-normal'>Not Offered</span>"|safe }}</span>
+                                        <span class="intl-deadline">{{ subject.spring_intl_deadline|default:"<span class='text-gray-400 italic font-normal'>Not Offered</span>"|safe }}</span>
+                                    </td>
+                                    <td class="p-4 text-blue-600 font-bold summer-col">
+                                        <span class="dom-deadline hidden">{{ subject.summer_dom_deadline|default:"<span class='text-gray-400 italic font-normal'>Not Offered</span>"|safe }}</span>
+                                        <span class="intl-deadline">{{ subject.summer_intl_deadline|default:"<span class='text-gray-400 italic font-normal'>Not Offered</span>"|safe }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="py-10 text-center text-gray-500 bg-gray-50 rounded-2xl border border-dashed border-gray-300"> 
+                        <p class="font-medium">No Bachelors deadlines currently listed.</p> 
+                    </div>
+                    {% endif %}
+                </div> 
+
+            </div> 
+        </div> 
+    </div> 
+
+    <!-- Script Section --> 
+    <script> 
+        function openTab(evt, degreeName) { 
+            let i, tabcontent, tablinks; 
+            
+            tabcontent = document.getElementsByClassName("tab-content"); 
+            for (i = 0; i < tabcontent.length; i++) { 
+                tabcontent[i].style.display = "none"; 
+            } 
+            
+            tablinks = document.getElementsByClassName("tab-btn"); 
+            for (i = 0; i < tablinks.length; i++) { 
+                tablinks[i].className = tablinks[i].className.replace(" text-blue-600 border-b-2 border-blue-600", " text-gray-500"); 
+            } 
+            
+            document.getElementById(degreeName).style.display = "block"; 
+            if(evt && evt.currentTarget) {
+                evt.currentTarget.className = evt.currentTarget.className.replace(" text-gray-500", " text-blue-600 border-b-2 border-blue-600"); 
+            }
+        } 
+
+        function toggleDeadlineType(selectedType) {
+            let domesticCb = document.getElementById('filter-domestic');
+            let internationalCb = document.getElementById('filter-international');
+
+            if (selectedType === 'domestic' && domesticCb.checked) {
+                internationalCb.checked = false; 
+            } else if (selectedType === 'international' && internationalCb.checked) {
+                domesticCb.checked = false; 
+            }
+
+            if (!domesticCb.checked && !internationalCb.checked) {
+                internationalCb.checked = true;
+            }
+
+            let isDomestic = domesticCb.checked;
+
+            document.querySelectorAll('.dom-deadline').forEach(el => {
+                if(isDomestic) {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+
+            document.querySelectorAll('.intl-deadline').forEach(el => {
+                if(isDomestic) {
+                    el.classList.add('hidden');
+                } else {
+                    el.classList.remove('hidden');
+                }
+            });
+        }
+        
+        function updateColumns(event) {
+            let priorityCheckbox = document.getElementById('filter-priority');
+            let isPriorityChecked = priorityCheckbox.checked;
+            
+            const fallCb = document.getElementById('semester-fall');
+            const springCb = document.getElementById('semester-spring');
+            const summerCb = document.getElementById('semester-summer');
+            
+            let isFallChecked = fallCb.checked;
+            let isSpringChecked = springCb.checked;
+            let isSummerChecked = summerCb.checked;
+
+            let checkedSemestersCount = [isFallChecked, isSpringChecked, isSummerChecked].filter(Boolean).length;
+
+            if (checkedSemestersCount === 0 && isPriorityChecked) {
+                if (event && event.target.classList.contains('semester-checkbox')) {
+                    priorityCheckbox.checked = false;
+                    isPriorityChecked = false;
+                } else if (event && event.target.id === 'filter-priority') {
+                    alert("দয়া করে প্রাইওরিটি ডেডলাইন দেখতে চাইলে কমপক্ষে একটি সেমিস্টার সিলেক্ট করুন।");
+                    priorityCheckbox.checked = false;
+                    isPriorityChecked = false;
+                }
+            }
+
+            if (isPriorityChecked && checkedSemestersCount > 1) {
+                if (event && event.target.id === 'filter-priority') {
+                    alert("একাধিক সেমিস্টার সিলেক্ট করা অবস্থায় প্রাইওরিটি ডেডলাইন দেখা যাবে না। দয়া করে শুধু একটি সেমিস্টার সিলেক্ট করুন।");
+                    priorityCheckbox.checked = false;
+                    isPriorityChecked = false;
+                } else if (event && event.target.classList.contains('semester-checkbox')) {
+                    alert("প্রাইওরিটি ডেডলাইন চেক থাকা অবস্থায় একটার বেশি সেমিস্টার সিলেক্ট করা যাবে না।");
+                    event.target.checked = false; 
+                    
+                    isFallChecked = fallCb.checked;
+                    isSpringChecked = springCb.checked;
+                    isSummerChecked = summerCb.checked;
+                    checkedSemestersCount = [isFallChecked, isSpringChecked, isSummerChecked].filter(Boolean).length;
+                }
+            }
+
+            const noSemesterSelected = checkedSemestersCount === 0;
+
+            document.querySelectorAll('.fall-col').forEach(col => {
+                (noSemesterSelected || isFallChecked) ? col.classList.remove('hidden') : col.classList.add('hidden');
+            });
+
+            document.querySelectorAll('.spring-col').forEach(col => {
+                (noSemesterSelected || isSpringChecked) ? col.classList.remove('hidden') : col.classList.add('hidden');
+            });
+
+            document.querySelectorAll('.summer-col').forEach(col => {
+                (noSemesterSelected || isSummerChecked) ? col.classList.remove('hidden') : col.classList.add('hidden');
+            });
+
+            const priorityCols = document.querySelectorAll('.priority-col');
+            if (isPriorityChecked) {
+                priorityCols.forEach(col => {
+                    col.classList.remove('hidden');
+                });
+            } else {
+                priorityCols.forEach(col => {
+                    col.classList.add('hidden');
+                });
+            }
+        }
+
+        function filterRows() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            
+            const isUgChecked = document.getElementById('filter-ug').checked;
+            const isPgChecked = document.getElementById('filter-pg').checked;
+
+            const isCertChecked = document.getElementById('filter-cert').checked;
+            const isOnlineChecked = document.getElementById('filter-online').checked;
+            const isOnCampusChecked = document.getElementById('filter-oncampus').checked;
+
+            const tabPhd = document.getElementById('tab-btn-phd');
+            const tabMasters = document.getElementById('tab-btn-masters');
+            const tabBachelors = document.getElementById('tab-btn-bachelors');
+            
+            tabPhd.style.display = "";
+            tabMasters.style.display = "";
+            tabBachelors.style.display = "";
+
+            // ট্যাব হাইড/শো লজিক
+            if (isUgChecked && !isPgChecked) {
+                tabPhd.style.display = "none";
+                tabMasters.style.display = "none";
+                if (document.getElementById('bachelors').style.display !== 'block') {
+                    tabBachelors.click();
+                }
+            } else if (isPgChecked && !isUgChecked) {
+                tabBachelors.style.display = "none";
+                if (document.getElementById('bachelors').style.display === 'block') {
+                    tabPhd.click();
+                }
+            }
+
+            const rows = document.querySelectorAll('.subject-row');
+
+            rows.forEach(row => {
+                const name = row.getAttribute('data-name');
+                const degree = row.getAttribute('data-degree'); 
+                const program = row.getAttribute('data-program');
+                const isCert = row.getAttribute('data-certificate');
+
+                const matchesSearch = name.includes(searchQuery);
+
+                let matchesDegree = true;
+                if (isUgChecked || isPgChecked) {
+                    matchesDegree = false; 
+                    if (isUgChecked && degree === 'bachelors') matchesDegree = true;
+                    if (isPgChecked && (degree === 'phd' || degree === 'masters')) matchesDegree = true;
+                }
+
+                let matchesProgram = true;
+                if (isOnlineChecked || isOnCampusChecked) {
+                    matchesProgram = false;
+                    if (isOnlineChecked && program === 'online') matchesProgram = true;
+                    if (isOnCampusChecked && program === 'on_campus') matchesProgram = true;
+                }
+
+                // যদি সার্টিফিকেট ফিল্টার চেক করা থাকে, তাহলে শুধুমাত্র সার্টিফিকেট কোর্সগুলোই শো করবে
+                let matchesCert = true;
+                if (isCertChecked && isCert !== 'true') {
+                    matchesCert = false;
+                }
+
+                if (matchesSearch && matchesDegree && matchesProgram && matchesCert) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+    </script>
+</body> 
+</html>

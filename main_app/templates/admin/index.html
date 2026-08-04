@@ -1,0 +1,38 @@
+{% extends "admin/index.html" %}
+{% load admin_notifications %}
+
+{% block content %}
+    <!-- পেন্ডিং কাউন্টগুলো ভেরিয়েবলে নিচ্ছি -->
+    {% get_pending_profiles_count as pending_profiles %}
+    {% get_pending_updates_count as pending_updates %}
+    {% get_pending_claims_count as pending_claims %}
+
+    <!-- যদি কোনো পেন্ডিং রিকোয়েস্ট থাকে, তবেই এই অ্যালার্ট ব্যানারটি দেখাবে -->
+    {% if pending_profiles > 0 or pending_updates > 0 or pending_claims > 0 %}
+        <div style="margin-bottom: 25px; width: 100%;">
+            <div style="background-color: #fff3cd; border-left: 6px solid #ffc107; border-radius: 4px; padding: 15px 20px; color: #856404; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h2 style="margin: 0 0 10px 0; font-size: 16px; font-weight: bold; color: #856404; background: transparent; border: none; padding: 0;">
+                    🔔 পেন্ডিং রিকোয়েস্ট অ্যালার্ট
+                </h2>
+                <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8;">
+                    
+                    {% if pending_claims > 0 %}
+                        <li><strong>{{ pending_claims }}</strong> টি প্রোফাইল ক্লেইম রিকোয়েস্ট রিভিউয়ের অপেক্ষায় আছে।</li>
+                    {% endif %}
+
+                    {% if pending_profiles > 0 %}
+                        <li><strong>{{ pending_profiles }}</strong> টি নতুন প্রফেসর প্রোফাইল ভেরিফিকেশনের অপেক্ষায় আছে।</li>
+                    {% endif %}
+                    
+                    {% if pending_updates > 0 %}
+                        <li><strong>{{ pending_updates }}</strong> টি প্রোফাইল আপডেট রিকোয়েস্ট চেক করার জন্য পেন্ডিং আছে।</li>
+                    {% endif %}
+                    
+                </ul>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- জ্যাঙ্গোর অরিজিনাল কন্টেন্ট (অ্যাপ লিস্ট এবং Recent Actions) -->
+    {{ block.super }}
+{% endblock %}

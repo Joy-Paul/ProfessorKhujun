@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>{% block title %}Professorkhujun | প্রফেসরের খোঁজ এখন সহজ{% endblock %}</title>
+</head>
+<body class="bg-slate-50 font-sans flex flex-col min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-white border-b border-gray-100 py-3 md:py-4 px-4 md:px-6 flex flex-wrap justify-between items-center sticky top-0 z-50 gap-y-3 shadow-sm">
+        <a href="{% url 'home' %}" class="text-xl md:text-2xl font-black text-blue-900 tracking-tight w-full sm:w-auto text-center sm:text-left">
+            Professorkhujun<span class="text-yellow-500">.com</span>
+        </a>
+        <div class="flex flex-wrap items-center justify-center sm:justify-end gap-2 md:gap-4 w-full sm:w-auto">
+            {% if user.is_authenticated %}
+                <span class="text-xs md:text-sm font-bold text-gray-500 hidden md:block">হ্যালো, {{ user.username }}</span>
+                
+                {% if user.is_superuser or user.is_staff %}
+                    <a href="{% url 'admin:index' %}" class="text-blue-600 font-bold text-xs md:text-sm hover:underline">অ্যাডমিন প্যানেল</a>
+                {% elif user.student_profile %}
+                    <a href="{% url 'student_dashboard' %}" class="flex items-center gap-1 text-blue-600 font-bold text-xs md:text-sm hover:bg-blue-50 px-2 py-1.5 md:px-3 rounded-lg transition border border-transparent hover:border-blue-100">🔖 বুকমার্কস</a>
+                {% else %}
+                    <a href="{% url 'professor_dashboard' %}" class="text-blue-600 font-bold text-xs md:text-sm hover:underline">মেন্টর ড্যাশবোর্ড</a>
+                {% endif %}
+                
+                <a href="{% url 'logout' %}" class="bg-red-50 text-red-600 px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-bold hover:bg-red-100 transition text-xs md:text-sm">লগআউট</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="text-blue-600 font-bold hover:text-blue-800 transition text-xs md:text-sm">লগইন</a>
+                <a href="{% url 'signup' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-xl font-bold transition shadow-md shadow-blue-200 text-xs md:text-sm">সাইন আপ</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#1a1a1a] text-gray-300 py-12 border-t border-gray-800 mt-auto">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div class="text-center md:text-left">
+                    <h4 class="text-xl font-bold text-white mb-4">Professorkhujun<span class="text-yellow-500">.com</span></h4>
+                    <p class="text-sm text-gray-400 leading-relaxed max-w-xs mx-auto md:mx-0">
+                        শিক্ষার্থী এবং প্রফেসরদের মধ্যে সরাসরি সেতুবন্ধন তৈরির একটি বিশ্বস্ত ও নিরাপদ প্ল্যাটফর্ম।
+                    </p>
+                </div>
+                <div class="text-center md:text-left">
+                    <h5 class="text-lg font-bold text-white mb-4">প্রয়োজনীয় লিংক</h5>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="{% url 'home' %}" class="hover:text-yellow-400 transition">হোমপেজ</a></li>
+                        <li><a href="{% url 'about' %}" class="hover:text-yellow-400 transition">আমাদের সম্পর্কে (About Us)</a></li>
+                        <li><a href="{% url 'contact' %}" class="hover:text-yellow-400 transition">যোগাযোগ করুন (Contact)</a></li>
+                    </ul>
+                </div>
+                <div class="text-center md:text-left">
+                    <h5 class="text-lg font-bold text-white mb-4">আইনগত ও অন্যান্য</h5>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="{% url 'privacy_policy' %}" class="hover:text-yellow-400 transition">Privacy Policy</a></li>
+                        <li><a href="{% url 'terms' %}" class="hover:text-yellow-400 transition">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-center items-center gap-4">
+                <p class="text-sm text-gray-500">
+                    &copy; 2026 <span class="font-bold text-gray-400">Professorkhujun.com</span>. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,76 +1,164 @@
-# models.py এর একদম উপরে এটি যোগ করবেন
-from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.db.models import Avg  # গড় রেটিং হিসাব করার জন্য
-from django.utils.timezone import now # এই লাইনটি একদম ওপরে ইম্পোর্ট করবেন
+from django.db.models import Avg
+from django.utils.timezone import now
+from django_countries.fields import CountryField
+import random
+
+# class University(models.Model):
+#     name = models.CharField(max_length=200, unique=True)
+#     location = models.CharField(max_length=100, blank=True, null=True)
+#     country = CountryField(blank_label='(Select Country)')
+
+#     # Fall Semester Deadlines
+#     fall_intl_deadline = models.CharField(max_length=100, blank=True, null=True, help_text="Example: Dec 15, 2026 or Rolling")
+#     fall_dom_deadline = models.CharField(max_length=100, blank=True, null=True)
+    
+#     # Spring Semester Deadlines
+#     spring_intl_deadline = models.CharField(max_length=100, blank=True, null=True)
+#     spring_dom_deadline = models.CharField(max_length=100, blank=True, null=True)
+
+#     @property
+#     def intl_days_left(self):
+#         if self.intl_deadline_date:
+#             delta = self.intl_deadline_date - now().date()
+#             return delta.days
+#         return None
+
+#     @property
+#     def domestic_days_left(self):
+#         if self.domestic_deadline_date:
+#             delta = self.domestic_deadline_date - now().date()
+#             return delta.days
+#         return None
+
+#     def __str__(self): 
+#         return self.name
 
 class University(models.Model):
-    name = models.CharField(max_length=255)
-    country = models.CharField(max_length=100)
+    name = models.CharField(max_length=200, unique=True)
+    # লোগো আপলোড করার জন্য নতুন ফিল্ড:
+    logo = models.ImageField(upload_to='university_logos/', null=True, blank=True)
+    location = models.CharField(max_length=100, blank=True, null=True)
+    country = CountryField(blank_label='(Select Country)')
 
-    # --- নতুন ডেডলাইন ফিল্ড ---
-    domestic_deadline = models.CharField(max_length=255, blank=True, null=True, help_text="Example: Fall - Dec 15, Spring - Oct 1")
-    international_deadline = models.CharField(max_length=255, blank=True, null=True, help_text="Example: Fall - Dec 1, Spring - Sep 15")
+    fall_intl_deadline = models.CharField(max_length=100, blank=True, null=True, help_text="Example: Dec 15, 2026 or Rolling")
+    fall_dom_deadline = models.CharField(max_length=100, blank=True, null=True)
+    spring_intl_deadline = models.CharField(max_length=100, blank=True, null=True)
+    spring_dom_deadline = models.CharField(max_length=100, blank=True, null=True)
+
+    def __str__(self): 
+        return self.name
+
+# class SubjectDeadline(models.Model):
+#     DEGREE_CHOICES = [
+#         ('phd', 'PhD'),
+#         ('masters', 'Masters'),
+#         ('bachelors', 'Bachelors'),
+#         ('certificate', 'Certificate'),
+#     ]
     
-    # --- নতুন: কাউন্টডাউনের জন্য সঠিক তারিখ ---
-    intl_deadline_date = models.DateField(blank=True, null=True, help_text="ইন্টারন্যাশনাল ডেডলাইনের সঠিক তারিখ দিন")
-    domestic_deadline_date = models.DateField(blank=True, null=True, help_text="ডোমেস্টিক ডেডলাইনের সঠিক তারিখ দিন")
+#     PROGRAM_CHOICES = [
+#         ('on_campus', 'On-Campus'),
+#         ('online', 'Online Program'),
+#     ]
+    
+#     university = models.ForeignKey(University, on_delete=models.CASCADE, related_name='subjects')
+#     name = models.CharField(max_length=200, help_text="Example: Computer Science")
+    
+#     # Filters
+#     degree_level = models.CharField(max_length=20, choices=DEGREE_CHOICES, default='phd', help_text="ডিগ্রির ধরন সিলেক্ট করুন")
+#     program_type = models.CharField(max_length=20, choices=PROGRAM_CHOICES, default='on_campus', help_text="প্রোগ্রামের ধরন")
+    
+#     # Priority Deadline
+#     priority_deadline = models.CharField("Priority Deadline", max_length=100, blank=True, null=True)
 
-    # অটোমেটিক দিন হিসাব করার লজিক (International)
-    @property
-    def intl_days_left(self):
-        if self.intl_deadline_date:
-            delta = self.intl_deadline_date - now().date()
-            return delta.days
-        return None
+#     # Fall Deadlines (Separate for Domestic & Intl)
+#     fall_intl_deadline = models.CharField("Fall (International)", max_length=100, blank=True, null=True)
+#     fall_dom_deadline = models.CharField("Fall (Domestic)", max_length=100, blank=True, null=True)
+    
+#     # Spring Deadlines
+#     spring_intl_deadline = models.CharField("Spring (International)", max_length=100, blank=True, null=True)
+#     spring_dom_deadline = models.CharField("Spring (Domestic)", max_length=100, blank=True, null=True)
+    
+#     # Summer Deadlines
+#     summer_intl_deadline = models.CharField("Summer (International)", max_length=100, blank=True, null=True)
+#     summer_dom_deadline = models.CharField("Summer (Domestic)", max_length=100, blank=True, null=True)
 
-    # অটোমেটিক দিন হিসাব করার লজিক (Domestic)
-    @property
-    def domestic_days_left(self):
-        if self.domestic_deadline_date:
-            delta = self.domestic_deadline_date - now().date()
-            return delta.days
-        return None
+#     def __str__(self):
+#         return f"{self.name} ({self.get_degree_level_display()}) - {self.university.name}"
 
-    def __str__(self): return self.name
 
+class SubjectDeadline(models.Model):
+    # 'Certificate' এখান থেকে সরিয়ে ফেলা হয়েছে
+    DEGREE_CHOICES = [
+        ('phd', 'PhD'),
+        ('masters', 'Masters'),
+        ('bachelors', 'Bachelors'),
+    ]
+    
+    PROGRAM_CHOICES = [
+        ('on_campus', 'On-Campus'),
+        ('online', 'Online Program'),
+    ]
+    
+    university = models.ForeignKey(University, on_delete=models.CASCADE, related_name='subjects')
+    name = models.CharField(max_length=200, help_text="Example: Computer Science")
+    
+    # Filters
+    degree_level = models.CharField(max_length=20, choices=DEGREE_CHOICES, default='phd', help_text="ডিগ্রির ধরন সিলেক্ট করুন")
+    program_type = models.CharField(max_length=20, choices=PROGRAM_CHOICES, default='on_campus', help_text="প্রোগ্রামের ধরন")
+    is_certificate = models.BooleanField(default=False, help_text="এটি কি একটি সার্টিফিকেট কোর্স?") # নতুন ফিল্ড
+    
+    # Priority Deadline
+    priority_deadline = models.CharField("Priority Deadline", max_length=100, blank=True, null=True)
+
+    # Fall Deadlines (Separate for Domestic & Intl)
+    fall_intl_deadline = models.CharField("Fall (International)", max_length=100, blank=True, null=True)
+    fall_dom_deadline = models.CharField("Fall (Domestic)", max_length=100, blank=True, null=True)
+    
+    # Spring Deadlines
+    spring_intl_deadline = models.CharField("Spring (International)", max_length=100, blank=True, null=True)
+    spring_dom_deadline = models.CharField("Spring (Domestic)", max_length=100, blank=True, null=True)
+    
+    # Summer Deadlines
+    summer_intl_deadline = models.CharField("Summer (International)", max_length=100, blank=True, null=True)
+    summer_dom_deadline = models.CharField("Summer (Domestic)", max_length=100, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.get_degree_level_display()}) - {self.university.name}"
+    
 class Professor(models.Model):
     name = models.CharField(max_length=255)
     university = models.ForeignKey(University, on_delete=models.CASCADE)
     department = models.CharField(max_length=100)
     research_area = models.TextField()
     email = models.EmailField()
-    bio = models.TextField(blank=True) # প্রফেসরের বিস্তারিত তথ্য
+    bio = models.TextField(blank=True)
     lab_link = models.URLField(blank=True)
-    website = models.URLField(blank=True, null=True) # যদি আগে lab_link থাকে, তবে website করে দিন
+    website = models.URLField(blank=True, null=True)
     image = models.ImageField(upload_to='prof_images/', blank=True, null=True)
     designation = models.CharField(max_length=100, default="Professor") 
     phone = models.CharField(max_length=20, blank=True, null=True)
-    # ২. প্রফেসরের সাথে ইউজার লিঙ্ক করা (যাতে তারা লগইন করতে পারে)
-# আপনার আগের Professor মডেলে শুধু এই লাইনটি যোগ করুন:
     user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True)
     is_verified = models.BooleanField(default=False)
 
-    # নতুন ফিল্ডসমূহ:
     publications = models.TextField(blank=True, help_text="আপনার পাবলিকেশনগুলোর লিস্ট দিন (প্রতিটি নতুন লাইনে)")
     lab_name = models.CharField(max_length=255, blank=True, null=True)
     lab_description = models.TextField(blank=True, null=True)
     lab_image = models.ImageField(upload_to='lab_images/', blank=True, null=True)
     uni_website = models.URLField(blank=True, null=True, help_text="ইউনিভার্সিটির ওয়েবসাইটের লিংক")
     
-    def __str__(self): return self.name
+    def __str__(self): 
+        return self.name
 
-    # --- রেটিং অটোমেটিক হিসাব করার লজিক ---
     @property
     def average_rating(self):
-        # এই প্রফেসরের সব রিভিউ থেকে রেটিংয়ের গড় (Average) বের করবে
         avg = self.reviews.aggregate(Avg('rating'))['rating__avg']
         if avg is not None:
-            return round(avg, 1) # দশমিকের পর এক ঘর দেখাবে (যেমন: 4.8)
-        return 0.0 # রিভিউ না থাকলে 0.0 দেখাবে
+            return round(avg, 1)
+        return 0.0
 
 class Review(models.Model):
     professor = models.ForeignKey(Professor, on_delete=models.CASCADE, related_name='reviews')
@@ -83,7 +171,6 @@ class Favorite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     professor = models.ForeignKey(Professor, on_delete=models.CASCADE)
 
-# ১. স্টুডেন্ট প্রোফাইল (ভেরিফিকেশনের জন্য)
 class StudentProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_profile')
     is_verified = models.BooleanField(default=False, help_text="অ্যাডমিন ভেরিফাই করলে তবেই রিভিউ দিতে পারবে")
@@ -91,10 +178,9 @@ class StudentProfile(models.Model):
     def __str__(self):
         return f"Student: {self.user.username}"
     
-# ৩. প্রফেসরের ইনফরমেশন চেঞ্জ রিকোয়েস্ট
 class ProfessorUpdateRequest(models.Model):
     professor = models.ForeignKey('Professor', on_delete=models.CASCADE)
-    requested_changes = models.TextField(help_text="কী পরিবর্তন করতে চান তা বিস্তারিত লিখুন (যেমন: আমার ফোন নম্বর 017... করে দিন)")
+    requested_changes = models.TextField(help_text="কী পরিবর্তন করতে চান তা বিস্তারিত লিখুন")
     is_approved = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -109,7 +195,6 @@ class ProfileClaimRequest(models.Model):
 
     def __str__(self):
         return f"{self.user.username} claims {self.professor.name}"
-    
 
 class Bookmark(models.Model):
     STATUS_CHOICES = [
@@ -122,18 +207,15 @@ class Bookmark(models.Model):
     
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     professor = models.ForeignKey('Professor', on_delete=models.CASCADE)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='saved') # নতুন ফিল্ড
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='saved')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'professor') # একজন ইউজার এক প্রফেসরকে একবারই সেভ করতে পারবে
+        unique_together = ('user', 'professor')
 
     def __str__(self):
         return f"{self.user.username} saved {self.professor.name}"
     
-# ==========================================
-# Report Model (For reporting incorrect info)
-# ==========================================
 class Report(models.Model):
     ISSUE_CHOICES = [
         ('wrong_email', 'ভুল ইমেইল অ্যাড্রেস'),
@@ -152,3 +234,12 @@ class Report(models.Model):
 
     def __str__(self):
         return f"Report on {self.professor.name} - {self.issue_type}"
+
+class OTPVerification(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='otp_profile')
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def generate_otp(self):
+        self.otp = str(random.randint(100000, 999999))
+        self.save()

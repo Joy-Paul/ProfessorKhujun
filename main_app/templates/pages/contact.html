@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Contact Us - Professorkhujun{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto py-16 px-6">
+    <h2 class="text-3xl font-black text-blue-900 mb-6 flex items-center gap-3">
+        <span class="w-2 h-8 bg-yellow-500 rounded-full"></span> যোগাযোগ করুন
+    </h2>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mb-6 bg-green-50 text-green-700 p-4 rounded-xl border border-green-200 font-bold text-center">✅ {{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+        <p class="text-gray-500 mb-8">আপনার যেকোনো প্রশ্ন, পরামর্শ বা অভিযোগ থাকলে নিচের ফর্মটি পূরণ করে আমাদের জানাতে পারেন।</p>
+        
+        <form method="POST" action="{% url 'contact' %}" class="space-y-5">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">আপনার নাম</label>
+                <input type="text" name="name" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition" required>
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">ইমেইল এড্রেস</label>
+                <input type="email" name="email" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition" required>
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">মেসেজ</label>
+                <textarea name="message" rows="5" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition" required></textarea>
+            </div>
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-blue-200">
+                মেসেজ পাঠান
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

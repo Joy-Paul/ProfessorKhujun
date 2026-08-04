@@ -1,5 +1,17 @@
-venv/
-*.pyc
+# Database
 db.sqlite3
+
+# Virtual Environment
+venv/
+env/
+
+# Python Cache
 __pycache__/
+*.pyc
+
+# Environment Variables & Secrets
 .env
+
+# Media & Static Files
+media/
+staticfiles/
