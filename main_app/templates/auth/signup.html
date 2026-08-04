@@ -4,80 +4,165 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>Sign Up | Professorkhujun</title>
+    <title>সাইন আপ | Professorkhujun</title>
+    <style>
+        /* ব্রাউজারের অটোফিল ব্যাকগ্রাউন্ড রিমুভ করার জন্য */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active{
+            -webkit-box-shadow: 0 0 0 30px white inset !important;
+            -webkit-text-fill-color: #7BA69C !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+    </style>
 </head>
-<body class="bg-slate-50 font-sans min-h-screen flex flex-col justify-center items-center p-4">
+<body class="bg-[#FDF3EE] font-sans min-h-screen flex flex-col justify-center items-center p-2 sm:p-4">
 
-    <!-- লোগো / সাইট নেম -->
-    <a href="/" class="text-3xl md:text-4xl font-black text-blue-900 tracking-tight mb-6 md:mb-8 mt-4 md:mt-0 transition hover:scale-105">
-        Professorkhujun<span class="text-yellow-500">.com</span>
-    </a>
-
-    <!-- মূল সাইনআপ বক্স -->
-    <div class="bg-white p-10 rounded-3xl shadow-xl w-full max-w-md border border-gray-100">
-        <h2 class="text-3xl font-black text-center mb-2 text-gray-800">অ্যাকাউন্ট তৈরি করুন</h2>
-        <p class="text-center text-sm text-gray-500 mb-8">স্টুডেন্ট বা প্রফেসর হিসেবে যোগ দিন</p>
-
-        {% if messages %}
-            {% for message in messages %}
-                <div class="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm font-bold text-center border border-red-200">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-
-        <form method="POST" action="{% url 'signup' %}" class="space-y-5">
-            {% csrf_token %}
-            
-            <div class="flex gap-4 mb-4">
-                <label class="flex-1 cursor-pointer">
-                    <input type="radio" name="role" value="student" class="peer sr-only" checked>
-                    <div class="text-center p-3 rounded-xl border-2 peer-checked:border-blue-600 peer-checked:bg-blue-50 font-bold text-gray-600 transition">
-                        👨‍🎓 আমি স্টুডেন্ট
-                    </div>
-                </label>
-                <label class="flex-1 cursor-pointer">
-                    <input type="radio" name="role" value="professor" class="peer sr-only">
-                    <div class="text-center p-3 rounded-xl border-2 peer-checked:border-yellow-500 peer-checked:bg-yellow-50 font-bold text-gray-600 transition">
-                        👨‍🏫 আমি প্রফেসর
-                    </div>
-                </label>
-            </div>
-
-            <input type="text" name="username" placeholder="ইউজারনেম (Username)" required class="w-full p-4 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200">
-            
-            <input type="email" name="email" placeholder="আপনার ইমেইল অ্যাড্রেস" required class="w-full p-4 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200">
-            
-            <div class="relative">
-                <input type="password" id="passwordField" name="password" placeholder="পাসওয়ার্ড" required class="w-full p-4 pr-12 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200">
-                
-                <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-600 transition">
-                    <svg id="eyeShow" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    <svg id="eyeHide" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                    </svg>
-                </button>
-            </div>
-
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-blue-200">
-                সাইন আপ করুন
-            </button>
-        </form>
+    <!-- Main Card Container -->
+    <div class="bg-[#FAFAFA] rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden border border-gray-100">
         
-        <p class="text-center text-sm text-gray-500 mt-6">
-            আগে থেকেই অ্যাকাউন্ট আছে? <a href="{% url 'login' %}" class="text-blue-600 font-bold hover:underline">লগইন করুন</a>
-        </p>
+        <!-- Green Header -->
+        <div class="bg-[#0A4D3C] py-3.5 px-6 text-center">
+            <a href="/" class="text-2xl md:text-3xl font-black text-white tracking-wide transition hover:opacity-80 inline-block">
+                Professorkhujun<span class="text-yellow-400">.com</span>
+            </a>
+        </div>
+
+        <!-- Content Padding -->
+        <div class="p-5 md:p-6">
+            
+            <!-- Title Section -->
+            <div class="mb-5 text-center">
+                <h2 class="text-2xl md:text-3xl font-black text-gray-900 mb-1 tracking-tight">অ্যাকাউন্ট তৈরি করুন</h2>
+                <p class="text-xs md:text-sm text-gray-600 font-medium">
+                    স্টুডেন্ট বা প্রফেসর হিসেবে যোগ দিন
+                </p>
+            </div>
+
+            <!-- Error Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="mb-3 bg-red-50 text-red-600 p-2.5 rounded-lg border border-red-100 font-bold text-center text-xs md:text-sm">
+                        ⚠️ {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST" action="{% url 'signup' %}" class="space-y-3.5">
+                {% csrf_token %}
+                
+                <!-- Role Selection -->
+                <div class="flex gap-3 mb-2">
+                    <label class="flex-1 cursor-pointer">
+                        <input type="radio" name="role" value="student" class="peer sr-only" checked>
+                        <div class="text-center p-2.5 rounded-xl border border-gray-200 peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 font-bold text-gray-600 text-xs md:text-sm transition shadow-sm">
+                            👨‍🎓 আমি স্টুডেন্ট
+                        </div>
+                    </label>
+                    <label class="flex-1 cursor-pointer">
+                        <input type="radio" name="role" value="professor" class="peer sr-only">
+                        <div class="text-center p-2.5 rounded-xl border border-gray-200 peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 font-bold text-gray-600 text-xs md:text-sm transition shadow-sm">
+                            👨‍🏫 আমি প্রফেসর
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Username Input -->
+                <div class="border border-gray-200 rounded-2xl p-2.5 flex items-center bg-white shadow-sm transition-all focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+                    <div class="text-blue-500 px-2.5">
+                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                    <div class="flex flex-col w-full pl-2.5 border-l border-gray-100">
+                        <label class="text-xs md:text-sm font-bold text-gray-800 mb-0.5">ইউজারনেম</label>
+                        <input type="text" name="username" placeholder="ইউজারনেম লিখুন" required class="w-full text-sm md:text-base text-[#7BA69C] font-medium outline-none bg-transparent placeholder-[#A5C4BD]">
+                    </div>
+                </div>
+
+                <!-- Email Input -->
+                <div class="border border-gray-200 rounded-2xl p-2.5 flex items-center bg-white shadow-sm transition-all focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+                    <div class="text-blue-500 px-2.5">
+                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <div class="flex flex-col w-full pl-2.5 border-l border-gray-100">
+                        <label class="text-xs md:text-sm font-bold text-gray-800 mb-0.5">ইমেইল</label>
+                        <input type="email" name="email" placeholder="আপনার ইমেইল অ্যাড্রেস" required class="w-full text-sm md:text-base text-[#7BA69C] font-medium outline-none bg-transparent placeholder-[#A5C4BD]">
+                    </div>
+                </div>
+                
+                <!-- Password Input -->
+                <div class="border border-gray-200 rounded-2xl p-2.5 flex items-center bg-white shadow-sm transition-all focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+                    <div class="text-blue-500 px-2.5">
+                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                    </div>
+                    <div class="flex flex-col w-full pl-2.5 border-l border-gray-100">
+                        <label class="text-xs md:text-sm font-bold text-gray-800 mb-0.5">পাসওয়ার্ড</label>
+                        <input type="password" id="passwordField" name="password" placeholder="পাসওয়ার্ড লিখুন" required class="w-full text-sm md:text-base text-[#7BA69C] font-medium outline-none bg-transparent placeholder-[#A5C4BD]">
+                    </div>
+                    <button type="button" onclick="togglePassword()" class="px-2.5 text-gray-800 hover:text-gray-500 transition">
+                        <svg id="eyeShow" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <svg id="eyeHide" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Cloudflare Captcha Mockup -->
+                <div class="border border-gray-200 bg-white rounded-md p-2.5 flex items-center justify-between mt-3 shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-6 h-6 md:w-7 md:h-7 bg-[#219142] rounded-full flex items-center justify-center shadow-sm">
+                            <svg class="w-3.5 h-3.5 md:w-4 md:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium text-gray-800">Success!</span>
+                    </div>
+                    <div class="flex flex-col items-end">
+                        <div class="text-[#F6821F] mb-0.5">
+                            <svg class="w-5 h-5 md:w-6 md:h-6 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M19.34 9.17A7 7 0 0012 2.5a6.97 6.97 0 00-6.17 3.65A4.5 4.5 0 006 15h12a4.5 4.5 0 001.34-5.83z"></path>
+                            </svg>
+                        </div>
+                        <div class="text-[9px] text-gray-900 font-bold tracking-widest leading-none">CLOUDFLARE</div>
+                        <div class="text-[9px] text-gray-500 mt-0.5">
+                            <a href="#" class="hover:underline text-blue-600">Privacy</a> - <a href="#" class="hover:underline text-blue-600">Terms</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 md:py-3.5 rounded-full transition shadow-md flex justify-center items-center relative mt-3">
+                    <span class="text-base md:text-lg tracking-wide">সাইন আপ করুন</span>
+                    <div class="absolute right-2 bg-white text-blue-600 w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center shadow-sm">
+                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </div>
+                </button>
+            </form>
+
+            <p class="text-center text-xs md:text-sm text-gray-700 mt-4 font-medium">
+                আগে থেকেই অ্যাকাউন্ট আছে? <a href="{% url 'login' %}" class="text-blue-600 font-bold hover:underline">লগইন করুন</a>
+            </p>
+            
+            <!-- Homepage Link -->
+            <div class="mt-1 pt-2 border-t border-gray-100 flex justify-center">
+                <a href="/" class="text-gray-400 hover:text-gray-600 text-xs md:text-sm font-bold transition flex items-center gap-1">
+                    <span>←</span> হোমপেজে ফিরে যান
+                </a>
+            </div>
+        </div>
     </div>
 
-    <!-- হোমপেজে ফিরে যাওয়ার লিংক -->
-    <a href="/" class="mt-8 text-gray-400 hover:text-gray-600 text-xs md:text-sm font-bold transition flex items-center gap-1 mb-8 md:mb-0">
-        <span>←</span> হোমপেজে ফিরে যান
-    </a>
-
-    <!-- পাসওয়ার্ড দেখার স্ক্রিপ্ট -->
     <script>
         function togglePassword() {
             const field = document.getElementById('passwordField');
