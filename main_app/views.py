@@ -12,8 +12,9 @@ from django.urls import reverse
 from django.contrib import messages
 from datetime import date, datetime
 
-from .models import Professor, Review, University, StudentProfile, ProfessorUpdateRequest, ProfileClaimRequest, Bookmark, Report, OTPVerification, SubjectDeadline
+import requests
 
+from .models import Professor, Review, University, StudentProfile, ProfessorUpdateRequest, ProfileClaimRequest, Bookmark, Report, OTPVerification, SubjectDeadline
 
 def home(request):
     universities = University.objects.all()
@@ -49,7 +50,6 @@ def home(request):
         'query': query,
     })
 
-
 def professor_detail(request, pk):
     professor = get_object_or_404(Professor, pk=pk, is_verified=True)
     reviews = professor.reviews.all().order_by('-created_at')
@@ -84,12 +84,10 @@ def professor_detail(request, pk):
         if isinstance(date_val, str):
             date_str = date_val.strip()
             
-            # "Rolling" বা "TBA" এর মতো টেক্সট থাকলে None রিটার্ন না করে একটি ফ্ল্যাগ রিটার্ন করবে
             text_deadlines = ['rolling', 'tba', 'not available', 'n/a', '-', 'none', 'tbd']
             if date_str.lower() in text_deadlines:
                 return 'TEXT_DEADLINE'
                 
-            # সম্ভাব্য সব ডেট ফরম্যাট
             date_formats = [
                 '%Y-%m-%d', '%b %d, %Y', '%B %d, %Y', 
                 '%d %b %Y', '%m/%d/%Y', '%d/%m/%Y'
@@ -168,7 +166,6 @@ def professor_detail(request, pk):
                 dom_status = {"color": "text-green-700 bg-green-100 border-green-200", "text": f"⏳ {days_left} days left"}
         else:
             dom_status = {"color": "text-red-700 bg-red-100 border-red-200", "text": "🚫 Closed"}
-    # --- লজিক শেষ ---
 
     if request.method == 'POST':
         if not request.user.is_authenticated:
@@ -209,6 +206,19 @@ def professor_detail(request, pk):
 
 def signup_view(request):
     if request.method == 'POST':
+        # Cloudflare Turnstile Verification for Signup
+        turnstile_response = request.POST.get('cf-turnstile-response')
+        secret_key = '0x4AAAAAAEGTmzZjDVZnFP2zLadAErU4-b0' # আপনার আসল Secret Key দিন
+        verify_url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
+        
+        response = requests.post(verify_url, data={'secret': secret_key, 'response': turnstile_response})
+        result = response.json()
+        
+        if not result.get('success'):
+            messages.error(request, 'ক্যাপচা ভেরিফিকেশন ব্যর্থ হয়েছে। দয়া করে আবার চেষ্টা করুন।')
+            return render(request, 'auth/signup.html')
+
+        # মূল সাইনআপ লজিক
         role = request.POST.get('role')
         username = request.POST.get('username')
         email = request.POST.get('email')
@@ -221,7 +231,6 @@ def signup_view(request):
                 messages.error(request, "এই ইমেইল দিয়ে ইতিমধ্যেই একটি অ্যাক্টিভ অ্যাকাউন্ট খোলা আছে। দয়া করে লগইন করুন।")
                 return redirect('signup')
             else:
-                # ইনঅ্যাক্টিভ ইউজার হলে নতুন করে ইউজারনেম আপডেট এবং OTP সেন্ড করা হবে
                 if User.objects.filter(username=username).exclude(id=existing_email_user.id).exists():
                     messages.error(request, "এই ইউজারনেমটি আগে থেকেই ব্যবহার করা হচ্ছে।")
                     return redirect('signup')
@@ -304,8 +313,47 @@ def verify_otp(request):
     return render(request, 'auth/verify_otp.html')
 
 
+def resend_otp(request):
+    user_id = request.session.get('verification_user_id')
+
+    if not user_id:
+        messages.error(request, "সেশন শেষ হয়ে গেছে বা আপনি সঠিক পেজ থেকে আসেননি। দয়া করে আবার সাইন আপ বা লগইন করুন।")
+        return redirect('signup')
+
+    user = get_object_or_404(User, id=user_id)
+
+    # আগের কোনো OTP থাকলে ডিলিট করে নতুন তৈরি করা
+    OTPVerification.objects.filter(user=user).delete()
+    otp_obj = OTPVerification.objects.create(user=user)
+    otp_obj.generate_otp()
+
+    # নতুন OTP ইমেইলে পাঠানো
+    subject = 'Resend OTP - Professorkhujun'
+    message = f'আপনার নতুন অ্যাকাউন্ট ভেরিফিকেশন কোড (OTP) হলো: {otp_obj.otp}'
+    
+    try:
+        send_mail(subject, message, settings.EMAIL_HOST_USER, [user.email])
+        messages.success(request, "নতুন একটি ৬-ডিজিটের কোড আপনার ইমেইলে পাঠানো হয়েছে।")
+    except Exception as e:
+        messages.error(request, "ইমেইল পাঠাতে সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন।")
+
+    return redirect('verify_otp')
+
 def login_view(request):
     if request.method == 'POST':
+        # Cloudflare Turnstile Verification for Login
+        turnstile_response = request.POST.get('cf-turnstile-response')
+        secret_key = '0x4AAAAAAEGTmzZjDVZnFP2zLadAErU4-b0' # আপনার আসল Secret Key দিন
+        verify_url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
+        
+        response = requests.post(verify_url, data={'secret': secret_key, 'response': turnstile_response})
+        result = response.json()
+        
+        if not result.get('success'):
+            messages.error(request, 'ক্যাপচা ভেরিফিকেশন ব্যর্থ হয়েছে। দয়া করে আবার চেষ্টা করুন।')
+            return render(request, 'auth/login.html')
+
+        # মূল লগইন লজিক
         username = request.POST.get('username')
         password  = request.POST.get('password')
         
@@ -329,7 +377,6 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('home')
-
 
 @login_required
 def professor_dashboard(request):
@@ -423,7 +470,6 @@ def professor_dashboard(request):
         'show_rejected_popup': show_rejected_popup
     })
 
-
 @login_required
 def toggle_bookmark(request, prof_id):
     professor = get_object_or_404(Professor, id=prof_id)
@@ -437,12 +483,10 @@ def toggle_bookmark(request, prof_id):
     
     return redirect('professor_detail', pk=prof_id)
 
-
 @login_required
 def student_dashboard(request):
     saved_profs = Bookmark.objects.filter(user=request.user).select_related('professor')
     return render(request, 'auth/student_dashboard.html', {'saved_profs': saved_profs})
-
 
 @login_required
 def update_application_status(request, bookmark_id):
@@ -454,7 +498,6 @@ def update_application_status(request, bookmark_id):
             bookmark.save()
             messages.success(request, f"{bookmark.professor.name}-এর স্ট্যাটাস আপডেট করা হয়েছে!")
     return redirect('student_dashboard')
-
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -484,7 +527,6 @@ def create_checkout_session(request):
             print(f"Stripe Error: {e}") 
             messages.error(request, f"পেমেন্ট শুরু করতে সমস্যা হয়েছে: {e}") 
     return redirect('home')
-
 
 def payment_success(request):
     session_id = request.GET.get('session_id')
@@ -517,12 +559,10 @@ def payment_success(request):
     messages.success(request, "আপনার অনুদানের জন্য অসংখ্য ধন্যবাদ! আপনাকে একটি কনফার্মেশন ইমেইল পাঠানো হয়েছে।")
     return redirect('home')
 
-
 def university_deadlines(request):
     query = request.GET.get('q', '')
     universities = University.objects.prefetch_related('subjects').all().order_by('name')
     
-    # স্লাইডারের জন্য ৫টি ইউনিভার্সিটি নেওয়া হলো
     slider_universities = University.objects.all().order_by('-id')[:5]
     
     if query:
@@ -535,7 +575,6 @@ def university_deadlines(request):
         'slider_universities': slider_universities, 
         'query': query
     })
-
 
 def report_professor(request, prof_id):
     if request.method == 'POST':
@@ -552,7 +591,6 @@ def report_professor(request, prof_id):
         )
         messages.success(request, "রিপোর্ট সাবমিট করার জন্য ধন্যবাদ! অ্যাডমিন খুব দ্রুত এটি চেক করে দেখবে।")
     return redirect('professor_detail', pk=prof_id)
-
 
 def about_view(request):
     return render(request, 'pages/about.html')
@@ -573,7 +611,6 @@ def privacy_policy_view(request):
 
 def terms_view(request):
     return render(request, 'pages/terms.html')
-
 
 def university_deadline_detail(request, pk):
     university = get_object_or_404(University, pk=pk)

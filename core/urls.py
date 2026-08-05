@@ -10,6 +10,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('signup/', views.signup_view, name='signup'),
     path('verify-email/', views.verify_otp, name='verify_otp'), # নতুন যুক্ত করা হলো
+    path('resend-otp/', views.resend_otp, name='resend_otp'), # <-- এটি নতুন যুক্ত করা হলো
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('dashboard/', views.professor_dashboard, name='professor_dashboard'),
