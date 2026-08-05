@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Hero Image / Banner Area -->
+<div class="w-full h-80 md:h-[400px] relative bg-gray-900 overflow-hidden">
+    {% if article.background_image %}
+        <img src="{{ article.background_image.url }}" class="w-full h-full object-cover opacity-50 transition-transform duration-700 hover:scale-105">
+    {% else %}
+        <!-- Default Gradient Banner if no image -->
+        <div class="w-full h-full bg-gradient-to-r from-blue-700 via-indigo-800 to-purple-900 opacity-90"></div>
+        <div class="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9IiNmZmYiLz48L3N2Zz4=')]"></div>
+    {% endif %}
+    
+    <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
+        <span class="bg-white/20 backdrop-blur-md border border-white/30 text-white px-5 py-1.5 rounded-full text-sm font-bold mb-6 tracking-wide">
+            {{ article.category }}
+        </span>
+        <h1 class="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white max-w-5xl leading-tight drop-shadow-lg">
+            {{ article.title }}
+        </h1>
+        <div class="mt-8 flex items-center justify-center gap-4 text-white/90 font-medium text-sm md:text-base bg-black/30 px-6 py-2 rounded-full backdrop-blur-sm">
+            <span>⏱️ {{ article.read_time }} মিনিট পড়া</span>
+            <span>•</span>
+            <!-- নতুন কোড: -->
+<span>👁️ {{ article.formatted_views }} ভিউ</span>
+            <span>•</span>
+            <span>📅 {{ article.created_at|date:"d M Y" }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Article Content Area -->
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 -mt-16 relative z-10">
+    <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-14 border border-gray-100">
+        
+        <!-- Author Info -->
+        <div class="flex items-center gap-4 mb-10 border-b border-gray-100 pb-8">
+            <div class="w-14 h-14 bg-gray-100 rounded-full border-2 border-indigo-50 flex items-center justify-center overflow-hidden">
+                {% if article.author_image %}
+                    <img src="{{ article.author_image.url }}" class="w-full h-full object-cover">
+                {% else %}
+                    <span class="text-2xl">🧑‍🎓</span>
+                {% endif %}
+            </div>
+            <div>
+                <p class="font-bold text-gray-900 text-lg">প্রফেসরখুঁজুন ডট কম</p>
+                <p class="text-sm text-gray-500">অ্যাডমিন ডেস্ক</p>
+            </div>
+        </div>
+
+        <!-- The Actual Content -->
+        <div class="prose prose-lg md:prose-xl max-w-none text-gray-700 leading-relaxed space-y-6">
+            {% if article.content %}
+                {{ article.content|linebreaks }}
+            {% else %}
+                <p class="text-gray-400 italic">এই আর্টিকেলের বিস্তারিত অংশ এখনো যোগ করা হয়নি।</p>
+            {% endif %}
+        </div>
+
+        <!-- Go Back Button -->
+        <div class="mt-16 pt-8 border-t border-gray-100 text-center">
+            <a href="{% url 'article_list' %}" class="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-bold transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                সব আর্টিকেলে ফিরে যান
+            </a>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

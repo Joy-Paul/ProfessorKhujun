@@ -46,6 +46,9 @@ urlpatterns = [
     path('privacy-policy/', views.privacy_policy_view, name='privacy_policy'),
     path('terms/', views.terms_view, name='terms'),
     path('university/<int:pk>/deadlines/', views.university_deadline_detail, name='university_deadline_detail'),
+
+    path('articles/', views.article_list, name='article_list'),
+    path('article/<int:pk>/', views.article_detail, name='article_detail'),
 ]
 
 if settings.DEBUG:

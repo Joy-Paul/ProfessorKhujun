@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    
+    <!-- Page Header -->
+    <div class="text-center mb-12">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">সব আর্টিকেল ও রিসোর্স</h1>
+        <p class="text-gray-600 max-w-2xl mx-auto text-lg">উচ্চশিক্ষা, স্কলারশিপ এবং ক্যারিয়ার সম্পর্কিত সকল গাইডলাইন ও টিপস এক ঠিকানায়।</p>
+    </div>
+
+    <!-- Article Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {% for article in articles %}
+        {% cycle '1' '2' '3' as style_type silent %}
+        
+        <a href="{{ article.get_absolute_url }}" class="group bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col">
+            
+            {% if article.background_image %}
+                <!-- Custom Background Image -->
+                <div class="h-48 relative overflow-hidden bg-cover bg-center" style="background-image: url('{{ article.background_image.url }}');">
+                    <div class="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-all duration-300"></div>
+                    
+                    <div class="absolute bottom-4 left-4 bg-white/20 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full border border-white/30 z-10">
+                        {% if style_type == '1' %}📝{% elif style_type == '2' %}✉️{% else %}🎓{% endif %} {{ article.category }}
+                    </div>
+                </div>
+            {% else %}
+                <!-- Default Gradient Fallbacks -->
+                {% if style_type == '1' %}
+                <div class="h-48 bg-gradient-to-br from-indigo-500 to-purple-600 relative overflow-hidden">
+                    <div class="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9IiNmZmYiLz48L3N2Zz4=')]"></div>
+                    <div class="absolute bottom-4 left-4 bg-white/20 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full border border-white/30">
+                        📝 {{ article.category }}
+                    </div>
+                </div>
+                
+                {% elif style_type == '2' %}
+                <div class="h-48 bg-gradient-to-br from-emerald-400 to-teal-600 relative overflow-hidden">
+                    <div class="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9IiNmZmYiLz48L3N2Zz4=')]"></div>
+                    <div class="absolute bottom-4 left-4 bg-white/20 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full border border-white/30">
+                        ✉️ {{ article.category }}
+                    </div>
+                </div>
+
+                {% else %}
+                <div class="h-48 bg-gradient-to-br from-amber-400 to-orange-500 relative overflow-hidden">
+                    <div class="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9IiNmZmYiLz48L3N2Zz4=')]"></div>
+                    <div class="absolute bottom-4 left-4 bg-white/20 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full border border-white/30">
+                        🎓 {{ article.category }}
+                    </div>
+                </div>
+                {% endif %}
+            {% endif %}
+
+            <!-- Body Section -->
+            <div class="p-6 flex-grow flex flex-col">
+                <h3 class="text-xl font-bold text-gray-800 mb-3 group-hover:{% if style_type == '1' %}text-blue-600{% elif style_type == '2' %}text-teal-600{% else %}text-orange-600{% endif %} transition">
+                    {{ article.title }}
+                </h3>
+                <p class="text-gray-500 text-sm mb-6 line-clamp-3 leading-relaxed">
+                    {{ article.summary }}
+                </p>
+                <div class="mt-auto flex items-center gap-3 text-xs font-bold text-gray-400">
+                    <span>⏱️ {{ article.read_time }} মিনিট পড়া</span>
+                    <span>•</span>
+                    <!-- ডাইনামিক ভিউ কাউন্ট: -->
+                    <span>{{ article.formatted_views }} ভিউ</span>
+                </div>
+            </div>
+        </a>
+        
+        {% empty %}
+        <div class="col-span-3 text-center text-gray-500 py-10 bg-white rounded-2xl border border-dashed border-gray-300">
+            এখনো কোনো আর্টিকেল বা রিসোর্স অ্যাড করা হয়নি।
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

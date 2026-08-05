@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib import messages
-from .models import Professor, University, Review, StudentProfile, ProfessorUpdateRequest, ProfileClaimRequest, SubjectDeadline
+from .models import Professor, University, Review, StudentProfile, ProfessorUpdateRequest, ProfileClaimRequest, SubjectDeadline, Article
 
 # সাবজেক্ট ডেডলাইনকে ইউনিভার্সিটির ভেতরে দেখানোর জন্য Inline ক্লাস
 class SubjectDeadlineInline(admin.TabularInline):
@@ -117,3 +117,10 @@ class ProfileClaimAdmin(admin.ModelAdmin):
             ProfileClaimRequest.objects.filter(professor=prof, is_approved=False).delete()
             
         self.message_user(request, "নির্বাচিত ক্লেইমগুলো অ্যাপ্রুভ করা হয়েছে এবং প্রোফাইলগুলো ভেরিফাইড হয়েছে।")
+
+
+@admin.register(Article)
+class ArticleAdmin(admin.ModelAdmin):
+    list_display = ('title', 'category', 'read_time', 'views', 'created_at')
+    search_fields = ('title', 'category')
+    list_filter = ('category', 'created_at')

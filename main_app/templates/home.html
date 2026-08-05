@@ -166,9 +166,12 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-8">
             {% for prof in professors %}
-            <div class="bg-white rounded-2xl md:rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 overflow-hidden group relative flex flex-col p-6 md:p-8">
+            <!-- এখানে prof-card এবং hidden কন্ডিশন যোগ করা হয়েছে -->
+            <!-- এখানে hidden এর পর extra-prof ক্লাসটি যোগ করা হয়েছে -->
+            <div class="prof-card {% if forloop.counter > 6 %}hidden extra-prof{% endif %} bg-white rounded-2xl md:rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 overflow-hidden group relative flex flex-col p-6 md:p-8">
                 
                 {% if query %}
+                <!-- বাকি কোড আগের মতোই থাকবে... -->
                     <div class="absolute top-0 left-0 z-10">
                         <span class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-900 text-[9px] md:text-[10px] font-black uppercase tracking-widest px-3 md:px-5 py-1.5 md:py-2 rounded-br-2xl shadow-sm flex items-center gap-1 border-b border-r border-yellow-500/30">
                             <span class="animate-pulse">✨</span> Best Match
@@ -248,7 +251,19 @@
             {% endfor %}
         </div>
 
-        <div class="mt-24 mb-16">
+<!-- Show More / Less Button -->
+        {% if professors|length > 6 %}
+        <div class="mt-10 text-center">
+            <button onclick="toggleProfessors()" class="bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-bold py-3 px-8 rounded-xl transition shadow-sm flex items-center justify-center gap-2 mx-auto">
+                <span id="toggle-btn-text">আরও প্রফেসর দেখুন</span>
+                <svg id="toggle-btn-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+        {% endif %}
+
+        <!-- <div class="mt-24 mb-16">
             <div class="flex justify-between items-end mb-10">
                 <div>
                     <h2 class="text-3xl font-black text-gray-800 flex items-center gap-3">
@@ -328,6 +343,95 @@
             
             <div class="mt-8 text-center md:hidden">
                 <a href="#" class="inline-block bg-white border border-gray-200 text-blue-600 font-bold py-3 px-8 rounded-xl shadow-sm">সবগুলো আর্টিকেল দেখুন</a>
+            </div>
+        </div> -->
+
+
+        <div class="mt-24 mb-16">
+            <div class="flex justify-between items-end mb-10">
+                <div>
+                    <h2 class="text-3xl font-black text-gray-800 flex items-center gap-3">
+                        <span class="text-4xl">🚀</span> Community & Resources
+                    </h2>
+                    <p class="text-gray-500 mt-2 font-medium">উচ্চশিক্ষার প্রস্তুতি, গাইডলাইন এবং সফলদের গল্প।</p>
+                </div>
+                <!-- URL 'articles_list' রাউটটি আপনার প্রজেক্ট অনুযায়ী পরিবর্তন করে নিতে পারেন -->
+                <a href="{% url 'article_list' %}" class="hidden md:block text-blue-600 font-bold hover:underline">সবগুলো দেখুন →</a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                
+                {% for article in articles|slice:":3" %}
+                <a href="{% if article.get_absolute_url %}{{ article.get_absolute_url }}{% else %}#{% endif %}" class="group bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col">
+                    
+                    <!-- Header Section (Image or Default Gradient) -->
+                    {% if article.background_image %}
+                        <!-- Custom Background Image -->
+                        <div class="h-48 relative overflow-hidden bg-cover bg-center" style="background-image: url('{{ article.background_image.url }}');">
+                            <!-- Dark overlay for readability -->
+                            <div class="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-all duration-300"></div>
+
+                            <div class="absolute bottom-4 left-4 bg-white/20 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full border border-white/30 z-10">
+                                {% if forloop.counter == 1 %}📝{% elif forloop.counter == 2 %}✉️{% else %}🎓{% endif %} {{ article.category }}
+                            </div>
+                        </div>
+                    {% else %}
+                        <!-- Default Gradient Designs (Fallback) -->
+                        {% if forloop.counter == 1 %}
+                        <!-- 1st Card Default (Purple) -->
+                        <div class="h-48 bg-gradient-to-br from-indigo-500 to-purple-600 relative overflow-hidden">
+                            <div class="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9IiNmZmYiLz48L3N2Zz4=')]"></div>
+                            <div class="absolute bottom-4 left-4 bg-white/20 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full border border-white/30">
+                                📝 {{ article.category }}
+                            </div>
+                        </div>
+                        
+                        {% elif forloop.counter == 2 %}
+                        <!-- 2nd Card Default (Teal) -->
+                        <div class="h-48 bg-gradient-to-br from-emerald-400 to-teal-600 relative overflow-hidden">
+                            <div class="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9IiNmZmYiLz48L3N2Zz4=')]"></div>
+                            <div class="absolute bottom-4 left-4 bg-white/20 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full border border-white/30">
+                                ✉️ {{ article.category }}
+                            </div>
+                        </div>
+
+                        {% else %}
+                        <!-- 3rd Card Default (Orange) -->
+                        <div class="h-48 bg-gradient-to-br from-amber-400 to-orange-500 relative overflow-hidden">
+                            <div class="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9IiNmZmYiLz48L3N2Zz4=')]"></div>
+                            <div class="absolute bottom-4 left-4 bg-white/20 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full border border-white/30">
+                                🎓 {{ article.category }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+
+                    <!-- Body Section -->
+                    <div class="p-6 flex-grow flex flex-col">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3 group-hover:{% if forloop.counter == 1 %}text-blue-600{% elif forloop.counter == 2 %}text-teal-600{% else %}text-orange-600{% endif %} transition">
+                            {{ article.title }}
+                        </h3>
+                        <p class="text-gray-500 text-sm mb-6 line-clamp-3 leading-relaxed">
+                            {{ article.summary }}
+                        </p>
+                        <div class="mt-auto flex items-center gap-3 text-xs font-bold text-gray-400">
+                            <span>⏱️ {{ article.read_time }} মিনিট পড়া</span>
+                            <span>•</span>
+                            <!-- নতুন কোড: -->
+<span>{{ article.formatted_views }} ভিউ</span>
+                        </div>
+                    </div>
+                </a>
+                {% empty %}
+                <div class="col-span-3 text-center text-gray-500 py-10 bg-white rounded-2xl border border-dashed border-gray-300">
+                    এখনো কোনো আর্টিকেল বা রিসোর্স অ্যাড করা হয়নি।
+                </div>
+                {% endfor %}
+
+            </div>
+            
+            <div class="mt-8 text-center md:hidden">
+                <a href="{% url 'article_list' %}" class="inline-block bg-white border border-gray-200 text-blue-600 font-bold py-3 px-8 rounded-xl shadow-sm">সবগুলো আর্টিকেল দেখুন</a>
             </div>
         </div>
 
@@ -566,6 +670,29 @@
                 this.classList.add('hidden');
             }
         });
+
+        // Show More / Show Less Logic
+        let isShowingAll = false;
+
+        function toggleProfessors() {
+            const extraCards = document.querySelectorAll('.extra-prof');
+            const btnText = document.getElementById('toggle-btn-text');
+            const btnIcon = document.getElementById('toggle-btn-icon');
+
+            if (isShowingAll) {
+                // যদি সব দেখানো থাকে, তবে আবার লুকিয়ে ফেলবে (Show Less)
+                extraCards.forEach(card => card.classList.add('hidden'));
+                btnText.innerText = "আরও প্রফেসর দেখুন";
+                btnIcon.style.transform = "rotate(0deg)"; // আইকন নিচে নির্দেশ করবে
+                isShowingAll = false;
+            } else {
+                // যদি লুকানো থাকে, তবে সব দেখাবে (Show More)
+                extraCards.forEach(card => card.classList.remove('hidden'));
+                btnText.innerText = "কমিয়ে দেখুন";
+                btnIcon.style.transform = "rotate(180deg)"; // আইকনটি ঘুরে উপরে নির্দেশ করবে
+                isShowingAll = true;
+            }
+        }
     </script>
 </body>
 </html>

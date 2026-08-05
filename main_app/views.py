@@ -12,14 +12,18 @@ from django.urls import reverse
 from django.contrib import messages
 from datetime import date, datetime
 
+
 import requests
 
-from .models import Professor, Review, University, StudentProfile, ProfessorUpdateRequest, ProfileClaimRequest, Bookmark, Report, OTPVerification, SubjectDeadline
+from .models import Professor, Review, University, StudentProfile, ProfessorUpdateRequest, ProfileClaimRequest, Bookmark, Report, OTPVerification, SubjectDeadline, Article
 
 def home(request):
     universities = University.objects.all()
     countries = University.objects.values_list('country', flat=True).distinct()
     departments = Professor.objects.values_list('department', flat=True).distinct()
+
+    # ডাটাবেস থেকে Community & Resources এর জন্য সর্বশেষ ৩টি আর্টিকেল ফেচ করা হচ্ছে
+    articles = Article.objects.all().order_by('-created_at')[:3]
 
     query = request.GET.get('q')
     uni_id = request.GET.get('university')
@@ -44,11 +48,13 @@ def home(request):
         'universities': universities,
         'countries': countries,
         'departments': departments,
+        'articles': articles, # ডাইনামিক আর্টিকেলগুলো কন্টেক্সটে পাস করা হলো
         'selected_uni': uni_id,
         'selected_country': country_name,
         'selected_dept': dept_name,
         'query': query,
     })
+    
 
 def professor_detail(request, pk):
     professor = get_object_or_404(Professor, pk=pk, is_verified=True)
@@ -624,3 +630,25 @@ def university_deadline_detail(request, pk):
         'bachelors_subjects': subjects.filter(degree_level='bachelors'),
     }
     return render(request, 'university_deadline_detail.html', context)
+
+
+def article_list(request):
+    # সবগুলো আর্টিকেল লেটেস্ট অনুযায়ী ফেচ করা হচ্ছে
+    articles = Article.objects.all().order_by('-created_at')
+    return render(request, 'pages/article_list.html', {'articles': articles})
+
+def article_detail(request, pk): # id এর জায়গায় pk লিখুন
+    article = get_object_or_404(Article, pk=pk) # id=id এর জায়গায় pk=pk লিখুন
+    
+    # সেশন চেক করার লজিকটি আগের মতোই থাকবে
+    session_key = f'viewed_article_{article.pk}' # এখানেও id এর জায়গায় pk
+    
+    if not request.session.get(session_key, False):
+        article.views += 1
+        article.save()
+        request.session[session_key] = True
+
+    context = {
+        'article': article
+    }
+    return render(request, 'pages/article_detail.html', context)
