@@ -12,8 +12,10 @@ from django.urls import reverse
 from django.contrib import messages
 from datetime import date, datetime
 
-
 import requests
+
+from django.db.models import Avg, Count
+from django.db.models.functions import Coalesce
 
 from .models import Professor, Review, University, StudentProfile, ProfessorUpdateRequest, ProfileClaimRequest, Bookmark, Report, OTPVerification, SubjectDeadline, Article
 
@@ -43,6 +45,23 @@ def home(request):
     if dept_name:
         professors = professors.filter(department=dept_name)
 
+
+    professors = Professor.objects.annotate(
+        # ১. রেটিংয়ের গড় বের করা হচ্ছে (কোনো রেটিং না থাকলে ০ ধরা হবে)
+        avg_rating=Coalesce(Avg('reviews__rating'), 0.0),
+        # ২. মোট কতজন রেটিং দিয়েছে তা গোনা হচ্ছে
+        review_count=Count('reviews')
+    ).order_by(
+        '-avg_rating',    # প্রথম শর্ত: যার রেটিং সবচেয়ে বেশি সে আগে আসবে
+        '-review_count',  # দ্বিতীয় শর্ত: রেটিং সমান হলে, যার রিভিউ সংখ্যা বেশি সে আগে আসবে
+        '-id'             # তৃতীয় শর্ত: দুটোই সমান হলে, যাকে সবার শেষে অ্যাড করা হয়েছে সে আগে আসবে
+    )[:10] # শুধু প্রথম ১০ জনকে দেখানোর জন্য (আপনার প্রয়োজন অনুযায়ী পরিবর্তন করতে পারেন)
+
+    # context = {
+    #     'professors': professors,
+    #     # অন্যান্য কনটেক্সট...
+    # }
+
     return render(request, 'home.html', {
         'professors': professors,
         'universities': universities,
@@ -53,6 +72,7 @@ def home(request):
         'selected_country': country_name,
         'selected_dept': dept_name,
         'query': query,
+        'professors': professors,
     })
     
 

@@ -47,6 +47,8 @@ class University(models.Model):
     fall_dom_deadline = models.CharField(max_length=100, blank=True, null=True)
     spring_intl_deadline = models.CharField(max_length=100, blank=True, null=True)
     spring_dom_deadline = models.CharField(max_length=100, blank=True, null=True)
+    # এই নতুন ফিল্ডটি যোগ করুন:
+    short_name = models.CharField(max_length=20, blank=True, null=True, help_text="যেমন: MIT, LPU, ISM")
 
     def __str__(self): 
         return self.name
@@ -159,6 +161,9 @@ class Professor(models.Model):
         if avg is not None:
             return round(avg, 1)
         return 0.0
+    @property
+    def total_reviews(self):
+        return self.reviews.count()
 
 class Review(models.Model):
     professor = models.ForeignKey(Professor, on_delete=models.CASCADE, related_name='reviews')
@@ -244,36 +249,63 @@ class OTPVerification(models.Model):
         self.otp = str(random.randint(100000, 999999))
         self.save()
 
+# class Article(models.Model):
+#     title = models.CharField(max_length=255)
+#     category = models.CharField(max_length=100, help_text="Ex: Application Guide, Communication, Success Story")
+#     summary = models.TextField(help_text="Short description for the card")
+#     # নতুন ফিল্ড: সম্পূর্ণ আর্টিকেল লেখার জন্য
+#     content = models.TextField(help_text="Full text of the article", null=True, blank=True)
+#     read_time = models.IntegerField(help_text="Reading time in minutes")
+#     views = models.DecimalField(max_digits=5, decimal_places=1, help_text="Ex: 1.2, 3.4 for k views")
+#     author_image = models.ImageField(upload_to='article_authors/', null=True, blank=True)
+    
+#     # নতুন ফিল্ডটি যোগ করুন
+#     background_image = models.ImageField(upload_to='article_bgs/', null=True, blank=True, help_text="Upload an image for card background (Optional)")
+
+#     # ভিউ কাউন্টের জন্য এই ফিল্ডটি ব্যবহার করুন
+#     views = models.PositiveIntegerField(default=0)
+    
+#     created_at = models.DateTimeField(auto_now_add=True)
+
+#     # এই নতুন ফাংশনটি যোগ করুন
+#     @property
+#     def formatted_views(self):
+#         if self.views >= 1000:
+#             val = self.views / 1000.0
+#             # যদি 1.0k হয়, তবে শুধু 1k দেখাবে, নাহলে 1.5k দেখাবে
+#             return f"{val:.1f}k".replace('.0k', 'k')
+#         return str(self.views)
+
+#     def __str__(self):
+#         return self.title
+
 class Article(models.Model):
     title = models.CharField(max_length=255)
     category = models.CharField(max_length=100, help_text="Ex: Application Guide, Communication, Success Story")
     summary = models.TextField(help_text="Short description for the card")
-    # নতুন ফিল্ড: সম্পূর্ণ আর্টিকেল লেখার জন্য
     content = models.TextField(help_text="Full text of the article", null=True, blank=True)
     read_time = models.IntegerField(help_text="Reading time in minutes")
-    views = models.DecimalField(max_digits=5, decimal_places=1, help_text="Ex: 1.2, 3.4 for k views")
     author_image = models.ImageField(upload_to='article_authors/', null=True, blank=True)
-    
-    # নতুন ফিল্ডটি যোগ করুন
     background_image = models.ImageField(upload_to='article_bgs/', null=True, blank=True, help_text="Upload an image for card background (Optional)")
 
-    # ভিউ কাউন্টের জন্য এই ফিল্ডটি ব্যবহার করুন
+    # শুধুমাত্র একটি views ফিল্ড থাকবে
     views = models.PositiveIntegerField(default=0)
     
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # এই নতুন ফাংশনটি যোগ করুন
     @property
     def formatted_views(self):
         if self.views >= 1000:
             val = self.views / 1000.0
-            # যদি 1.0k হয়, তবে শুধু 1k দেখাবে, নাহলে 1.5k দেখাবে
             return f"{val:.1f}k".replace('.0k', 'k')
         return str(self.views)
 
     def __str__(self):
         return self.title
 
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('article_detail', kwargs={'pk': self.pk})
 
 # URL পাওয়ার জন্য (urls.py এ সেট করার পর এটি কাজে লাগবে)
     def get_absolute_url(self):
