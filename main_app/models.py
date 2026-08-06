@@ -165,6 +165,27 @@ class Professor(models.Model):
     def total_reviews(self):
         return self.reviews.count()
 
+    @property
+    def rating_distribution(self):
+        total = self.reviews.count()
+        # যদি কোনো রিভিউ না থাকে, তাহলে সব ০% দেখাবে
+        if total == 0:
+            return {'five': 0, 'four': 0, 'three': 0, 'two': 0, 'one': 0}
+        
+        counts = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0}
+        for review in self.reviews.all():
+            if review.rating in counts:
+                counts[review.rating] += 1
+                
+        # শতাংশ (Percentage) হিসাব করা হচ্ছে
+        return {
+            'five': int((counts[5] / total) * 100),
+            'four': int((counts[4] / total) * 100),
+            'three': int((counts[3] / total) * 100),
+            'two': int((counts[2] / total) * 100),
+            'one': int((counts[1] / total) * 100),
+        }
+
 class Review(models.Model):
     professor = models.ForeignKey(Professor, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
