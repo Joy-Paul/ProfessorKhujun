@@ -6,15 +6,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <title>লগইন | Professorkhujun</title>
     <style>
-        /* ব্রাউজারের অটোফিল ব্যাকগ্রাউন্ড রিমুভ করার জন্য */
-        input:-webkit-autofill,
-        input:-webkit-autofill:hover, 
-        input:-webkit-autofill:focus, 
-        input:-webkit-autofill:active{
-            -webkit-box-shadow: 0 0 0 30px white inset !important;
-            -webkit-text-fill-color: #7BA69C !important;
-            transition: background-color 5000s ease-in-out 0s;
-        }
+    /* ব্রাউজারের অটোফিল ব্যাকগ্রাউন্ড রিমুভ করার জন্য */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover, 
+    input:-webkit-autofill:focus, 
+    input:-webkit-autofill:active {
+        /* white-এর জায়গায় #FAFAFA দেওয়া হয়েছে যাতে পেজের সাথে মিশে যায় */
+        -webkit-box-shadow: 0 0 0 30px #FAFAFA inset !important;
+        -webkit-text-fill-color: #7BA69C !important;
+        transition: background-color 5000s ease-in-out 0s;
+    }
     </style>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
@@ -54,7 +55,7 @@
                 {% csrf_token %}
                 
                 <!-- Username Input -->
-                <div class="border border-gray-200 rounded-2xl p-2.5 flex items-center bg-white shadow-sm transition-all focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+                <div class="border border-gray-200 rounded-2xl p-2.5 flex items-center bg-transparent shadow-sm transition-all focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
                     <div class="text-blue-500 px-2.5">
                         <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -67,7 +68,7 @@
                 </div>
                 
                 <!-- Password Input -->
-                <div class="border border-gray-200 rounded-2xl p-2.5 flex items-center bg-white shadow-sm transition-all focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+                <div class="border border-gray-200 rounded-2xl p-2.5 flex items-center bg-transparent shadow-sm transition-all focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
                     <div class="text-blue-500 px-2.5">
                         <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
@@ -89,9 +90,9 @@
                 </div>
 
                 <!-- Real Cloudflare Turnstile -->
-<div class="mt-3 w-full">
-    <div class="cf-turnstile w-full" data-sitekey="0x4AAAAAAEGTmxl9OgvZF8FW" data-theme="light" data-size="flexible"></div>
-</div>
+                <div class="mt-3 w-full overflow-hidden rounded-2xl border border-gray-200 shadow-sm bg-white h-[63px] flex flex-col">
+                    <div class="cf-turnstile" style="margin: -1px; width: calc(100% + 2px);" data-sitekey="0x4AAAAAAEGTmxl9OgvZF8FW" data-theme="light" data-size="flexible"></div>
+                </div> 
                 
                 <div class="text-left pt-0.5">
                     <a href="{% url 'password_reset' %}" class="text-xs md:text-sm font-bold text-blue-800 hover:underline transition">পাসওয়ার্ড ভুলে গেছেন?</a>
